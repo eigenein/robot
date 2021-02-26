@@ -4,11 +4,13 @@
 - [ ] Magnetic field sensor (compass)
 - [ ] Ultrasonic distance sensor
 - [ ] Wireless PS2 controller
+- [ ] Bluetooth
 
 ## Output
 
 - [ ] Motors
 - [ ] Piezo buzzer
+- [ ] Bluetooth
 
 ## Features
 
