@@ -1,24 +1,29 @@
 ## Input
 
 - [ ] Wheel rotary encoders
-- [ ] Magnetic field sensor (compass)
+  - [ ] Filtering
+  - [ ] Speed tracking
+- [ ] Magnetic field sensor
+  - [ ] Calibration
+  - [ ] Filtering
 - [ ] Ultrasonic distance sensor
 - [ ] Wireless PS2 controller
 - [ ] Bluetooth
+  - [ ] Console
 
 ## Output
 
 - [ ] Motors
+  - [ ] PID controller
 - [ ] Piezo buzzer
 - [ ] Bluetooth
+  - [ ] Serial monitor
 
 ## Features
 
-- [ ] Motor PID controller
-- [ ] Speed tracking
 - [ ] Position tracking
 - [ ] Mapping
 
 ## Schematics
 
-![Schematics image](robot_schem.png)
+![Schematics image](fritzing/robot_schem.png)
