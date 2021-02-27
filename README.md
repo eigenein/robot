@@ -3,9 +3,9 @@
 - [ ] Wheel rotary encoders
   - [ ] Filtering
   - [ ] Speed tracking
-- [ ] Magnetic field sensor
-  - [ ] Calibration
-  - [ ] Filtering
+- [x] Magnetic field sensor
+  - [x] Calibration
+  - [x] Filtering
 - [ ] Ultrasonic distance sensor
 - [ ] Wireless PS2 controller
 - [ ] Bluetooth
