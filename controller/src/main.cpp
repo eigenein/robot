@@ -29,7 +29,6 @@ void readCompass();
 Ticker telemetryTicker(printTelemetry, PRINT_TELEMETRY_INTERVAL_MILLIS);
 Ticker readCompassTicker(readCompass, READ_COMPASS_INTERVAL_MILLIS);
 
-
 // Current state.
 // -------------------------------------------------------------------------------------------------
 
@@ -42,18 +41,15 @@ static float positionTicksY = 0.0f;
 // Initializers.
 // -------------------------------------------------------------------------------------------------
 
-void incrementRotary();
-
-void enableRotaryInterrupts() {
-    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_LEFT), incrementRotary, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_RIGHT), incrementRotary, CHANGE);
-}
+void incrementRotaryLeft();
+void incrementRotaryRight();
 
 void initializePins() {
     pinMode(PIN_ROTARY_LEFT, INPUT);
     pinMode(PIN_ROTARY_RIGHT, INPUT);
 
-    enableRotaryInterrupts();
+    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_LEFT), incrementRotaryLeft, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_RIGHT), incrementRotaryRight, CHANGE);
 
     pinMode(LED_BUILTIN, OUTPUT);
 }
@@ -128,7 +124,13 @@ void readCompass() {
     compassY = unnormalizedY / magnitude;
 }
 
-void incrementRotary() {
+void incrementRotaryLeft() {
+    // TODO: wheel rotation direction.
+    positionTicksX += 0.5f * compassX;
+    positionTicksY += 0.5f * compassY;
+}
+
+void incrementRotaryRight() {
     // TODO: wheel rotation direction.
     positionTicksX += 0.5f * compassX;
     positionTicksY += 0.5f * compassY;
