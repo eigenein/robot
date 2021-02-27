@@ -1,8 +1,6 @@
 ## Input
 
-- [ ] Wheel rotary encoders
-  - [ ] Filtering
-  - [ ] Speed tracking
+- [x] Wheel rotary encoders
 - [x] Magnetic field sensor
   - [x] Calibration
   - [x] Filtering
