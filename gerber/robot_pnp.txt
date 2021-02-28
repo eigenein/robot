@@ -4,7 +4,7 @@
 *eMail=
 *
 *Project=robot
-*Date=14:03:06
+*Date=16:25:53
 *CreatedBy=Fritzing 0.9.6b.2021-02-21.CD-175-0-8a1e0682
 *
 *
@@ -13,42 +13,46 @@
 *Rotation in degree (0-360, math. pos.)
 *
 *No;Value;Package;X;Y;Rotation;Side;Name
-1;;;20.2554;-76.132;0;Bottom;Hole5
-2;5.6k;THT;11.3973;-124.392;90;Bottom;R3
-3;;;32.4847;-203.172;-90;Bottom;L motor
-4;;;8.2296;-134.844;0;Bottom;Via8
-5;100nF;200 mil [THT, multilayer];29.5493;-109.524;135;Bottom;C3
-6;;;20.2873;-58.352;0;Bottom;Hole8
-7;;;20.2873;-40.572;0;Bottom;Hole6
-8;;;20.2873;-229.802;0;Bottom;Hole7
-9;;;32.4845;-140.862;0;Bottom;Power 5V
-10;;THT;11.3973;-81.212;-90;Bottom;JDY-31 DIP
-11;5.6k;THT;19.0173;-124.392;90;Bottom;R1
-12;;;37.0324;-147.158;0;Bottom;TXT7
-13;;;17.9832;-167.762;0;Bottom;Via9
-14;;;36.9856;-119.876;0;Bottom;TXT7
-15;;;20.2554;-236.152;0;Bottom;Hole3
-16;;;20.2554;-3.74187;0;Bottom;Hole4
-17;;;14.9352;-176.906;0;Bottom;Via2
-18;100nF;200 mil [THT, multilayer];26.6373;-189.162;90;Bottom;C2
-19;5.6k;THT;15.2073;-124.392;90;Bottom;R2
-20;;;31.3944;-161.057;0;Bottom;Via1
-21;;;30.7848;-167.762;0;Bottom;Via5
-22;100nF;200 mil [THT, multilayer];34.6293;-109.524;135;Bottom;C4
-23;;;32.6587;-100.396;0;Bottom;Rotary
-24;5.6k;THT;16.4773;-86.292;0;Bottom;R4
-25;;;13.9373;-154.88;180;Bottom;Arduino Nano Every
-26;;;12.0323;-195.534;0;Bottom;Motor Driver
-27;;;32.4845;-189.122;-90;Bottom;R motor
-28;;;20.2873;-22.792;0;Bottom;Hole9
-29;;;14.9352;-166.543;0;Bottom;Via3
-30;100nF;200 mil [THT, multilayer];26.6373;-203.132;-90;Bottom;C1
-31;;;26.5176;-165.933;0;Bottom;Via4
-32;;THT;12.6673;-98.992;90;Bottom;Buzzer
-33;;THT;15.2073;-112.962;-90;Bottom;PS2 Receiver
-34;;;14.9352;-142.769;0;Bottom;Via7
-35;;;25.2984;-134.234;0;Bottom;Via6
-36;;;32.37;-157.306;90;Bottom;HMC5883L
-37;;THT;20.2873;-222.182;90;Bottom;HC-SR04
-38;;;2.8366;-23.4975;-90;Bottom;TXT6
-39;;;32.4847;-126.972;180;Bottom;Power 5V
+1;;;12.4968;-167.153;0;Bottom;Via6
+2;;;26.5176;-165.934;0;Bottom;Via8
+3;;;23.4696;-114.727;0;Bottom;Via3
+4;;;13.9373;-154.88;180;Bottom;Arduino Nano Every
+5;;;20.2873;-40.5719;0;Bottom;Hole6
+6;;;28.956;-141.55;0;Bottom;Via2
+7;100nF;200 mil [THT, multilayer];34.6293;-109.524;135;Bottom;C4
+8;;THT;11.3973;-98.992;90;Bottom;Buzzer
+9;;;20.2554;-76.1319;0;Bottom;Hole5
+10;;;2.8366;-23.4975;-90;Bottom;TXT6
+11;5.6k;THT;15.2073;-124.392;90;Bottom;R2
+12;;;32.4847;-126.972;180;Bottom;GND.5V
+13;5.6k;THT;19.0173;-124.392;90;Bottom;R1
+14;;;32.6587;-100.396;0;Bottom;Rot.OUT
+15;;THT;20.2873;-222.182;90;Bottom;HC-SR04
+16;;THT;11.3973;-81.212;-90;Bottom;JDY-31 DIP
+17;;;14.9352;-142.769;0;Bottom;Via7
+18;;;16.1544;-150.694;0;Bottom;Via5
+19;5.6k;THT;11.3973;-124.392;90;Bottom;R3
+20;;;12.0323;-195.534;0;Bottom;Motor Driver
+21;;;32.604;-79.4391;180;Bottom;GND.5V
+22;100nF;200 mil [THT, multilayer];29.5493;-109.524;135;Bottom;C3
+23;;;20.2554;-3.74187;0;Bottom;Hole4
+24;;;20.2873;-58.3519;0;Bottom;Hole8
+25;100nF;200 mil [THT, multilayer];26.6373;-203.132;-90;Bottom;C1
+26;;;37.0324;-146.452;0;Bottom;TXT7
+27;;;20.2873;-229.802;0;Bottom;Hole7
+28;;;32.37;-157.306;90;Bottom;HMC5883L
+29;;;32.4845;-189.122;-90;Bottom;R motor
+30;100nF;200 mil [THT, multilayer];26.6373;-189.162;90;Bottom;C2
+31;;;17.9832;-167.762;0;Bottom;Via1
+32;;;32.4845;-140.862;0;Bottom;GND.5V
+33;5.6k;THT;16.4773;-86.292;0;Bottom;R4
+34;;THT;15.2073;-112.962;-90;Bottom;PS2 Receiver
+35;;;8.2296;-134.844;0;Bottom;Via10
+36;;;37.644;-86.7153;0;Bottom;TXT7
+37;;;32.4847;-203.172;-90;Bottom;L motor
+38;;;20.2873;-22.7919;0;Bottom;Hole9
+39;;;30.7848;-172.639;0;Bottom;Via9
+40;;;11.8872;-139.721;0;Bottom;Via4
+41;;;20.2554;-236.152;0;Bottom;Hole3
+42;;;36.9856;-121.288;0;Bottom;TXT7
+43;;;32.4628;-65.4691;180;Bottom;SDA.SCL
