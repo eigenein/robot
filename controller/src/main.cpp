@@ -5,14 +5,18 @@
 #include <Adafruit_HMC5883_U.h>
 #include <Ticker.h>
 
+// -------------------------------------------------------------------------------------------------
 // Fundamental constants.
 // -------------------------------------------------------------------------------------------------
 
 static const unsigned int PRINT_TELEMETRY_INTERVAL_MILLIS = 500;
 static const unsigned int READ_COMPASS_INTERVAL_MILLIS = 1000 / 15; // Default readings rate is 15Hz.
+static const unsigned int READ_CONSOLE_INTERVAL_MILLIS = 100;
+static const unsigned int MAX_CONSOLE_INPUT_LENGTH = 40;
 
 static const float COMPASS_SMOOTHING_FACTOR = 0.3f;
 
+// -------------------------------------------------------------------------------------------------
 // Peripherals and pins.
 // -------------------------------------------------------------------------------------------------
 static const unsigned int PIN_ROTARY_LEFT = 20;
@@ -20,17 +24,38 @@ static const unsigned int PIN_ROTARY_RIGHT = 21;
 
 Adafruit_HMC5883_Unified compass = Adafruit_HMC5883_Unified();
 
-// Tickers.
 // -------------------------------------------------------------------------------------------------
+// Forward declarations.
+// -------------------------------------------------------------------------------------------------
+
+void initializeSerial();
+void initializePins();
+void initializeCompass();
+void startTickers();
 
 void printTelemetry();
 void readCompass();
+void readConsole();
+
+void incrementRotaryLeft();
+void incrementRotaryRight();
+
+void handleConsoleInput(const char[], unsigned int);
+
+// -------------------------------------------------------------------------------------------------
+// Tickers.
+// Don't forget to call `start` and `update` on them.
+// -------------------------------------------------------------------------------------------------
 
 Ticker telemetryTicker(printTelemetry, PRINT_TELEMETRY_INTERVAL_MILLIS);
 Ticker readCompassTicker(readCompass, READ_COMPASS_INTERVAL_MILLIS);
+Ticker readConsoleTicker(readConsole, READ_CONSOLE_INTERVAL_MILLIS);
 
+// -------------------------------------------------------------------------------------------------
 // Current state.
 // -------------------------------------------------------------------------------------------------
+
+static bool isTelemetryEnabled = true;
 
 static float compassX = 0.0f;
 static float compassY = 0.0f;
@@ -38,11 +63,29 @@ static float compassY = 0.0f;
 static float positionTicksX = 0.0f;
 static float positionTicksY = 0.0f;
 
-// Initializers.
+// -------------------------------------------------------------------------------------------------
+// Arduino setup and loop.
 // -------------------------------------------------------------------------------------------------
 
-void incrementRotaryLeft();
-void incrementRotaryRight();
+void setup() {
+    initializeSerial();
+
+    Serial.println("└[∵]┘ Hi! Press <Enter> to enter the CLI.");
+
+    initializePins();
+    initializeCompass();
+    startTickers();
+}
+
+void loop() {
+    telemetryTicker.update();
+    readCompassTicker.update();
+    readConsoleTicker.update();
+}
+
+// -------------------------------------------------------------------------------------------------
+// Initializers.
+// -------------------------------------------------------------------------------------------------
 
 void initializePins() {
     pinMode(PIN_ROTARY_LEFT, INPUT);
@@ -61,27 +104,26 @@ void initializeSerial() {
 
 void initializeCompass() {
     if (!compass.begin()) {
-        Serial.println("Error: no HMC5883 detected.");
-        while(1);
+        Serial.println("┌[∵]┐ Error: no HMC5883 detected.");
+        while (1);
     }
 }
 
 void startTickers() {
     telemetryTicker.start();
     readCompassTicker.start();
+    readConsoleTicker.start();
 }
 
-void setup() {
-    initializePins();
-    initializeSerial();
-    initializeCompass();
-    startTickers();
-}
-
+// -------------------------------------------------------------------------------------------------
 // Functionality.
 // -------------------------------------------------------------------------------------------------
 
 void printTelemetry() {
+    if (!isTelemetryEnabled) {
+        return;
+    }
+
     Serial.print("Compass: ");
     Serial.print(compassX);
     Serial.print(" ");
@@ -95,6 +137,40 @@ void printTelemetry() {
     Serial.print(positionTicksY);
 
     Serial.println();
+}
+
+// Read the serial console and execute command, if needed.
+void readConsole() {
+    static char input[MAX_CONSOLE_INPUT_LENGTH] = {'\0'};
+    static unsigned int currentLength = 0;
+
+    while (Serial.available() != 0) {
+        char nextChar = Serial.read();
+        Serial.print(nextChar);
+        if (nextChar == '\n') {
+            handleConsoleInput(input, currentLength);
+            currentLength = 0;
+        } else if ((nextChar >= ' ') && (currentLength < MAX_CONSOLE_INPUT_LENGTH)) {
+            input[currentLength++] = nextChar;
+        }
+    }
+}
+
+// Handle user console input and execute the command.
+void handleConsoleInput(const char input[], unsigned int length) {
+    if (length == 0) {
+        isTelemetryEnabled = !isTelemetryEnabled;
+        if (isTelemetryEnabled) {
+            Serial.println("└[∵]┘ Quitting CLI. Telemetry enabled. Press <Enter> to go back to CLI.");
+        } else {
+            Serial.println("└[∵]┘ Telemetry disabled. Entering CLI. Press <Enter> to quit.");
+        }
+    } else if (strncasecmp(input, "help", length) == 0) {
+        Serial.println("help        Print the help.");
+    }
+    if (!isTelemetryEnabled) {
+        Serial.print("└[∵]┘ > ");
+    }
 }
 
 void readCompass() {
@@ -134,12 +210,4 @@ void incrementRotaryRight() {
     // TODO: wheel rotation direction.
     positionTicksX += 0.5f * compassX;
     positionTicksY += 0.5f * compassY;
-}
-
-// The Loop.
-// -------------------------------------------------------------------------------------------------
-
-void loop() {
-    telemetryTicker.update();
-    readCompassTicker.update();
 }
