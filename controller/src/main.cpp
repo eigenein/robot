@@ -17,10 +17,39 @@ static const unsigned int MAX_CONSOLE_INPUT_LENGTH = 40;
 static const float COMPASS_SMOOTHING_FACTOR = 0.3f;
 
 // -------------------------------------------------------------------------------------------------
+// Custom types.
+// -------------------------------------------------------------------------------------------------
+
+typedef enum MotorMode {
+    FORWARD,
+    BACKWARD,
+    OFF,
+    SHORT_BREAK,
+};
+
+typedef struct MotorPins {
+    unsigned int pin1;
+    unsigned int pin2;
+    unsigned int pwm;
+};
+
+// -------------------------------------------------------------------------------------------------
 // Peripherals and pins.
 // -------------------------------------------------------------------------------------------------
+
 static const unsigned int PIN_ROTARY_LEFT = 20;
 static const unsigned int PIN_ROTARY_RIGHT = 21;
+
+static const unsigned int PIN_MOTOR_A1 = 4;
+static const unsigned int PIN_MOTOR_A2 = 2;
+static const unsigned int PIN_MOTOR_A_PWM = 9;
+
+static const unsigned int PIN_MOTOR_B1 = 7;
+static const unsigned int PIN_MOTOR_B2 = 8;
+static const unsigned int PIN_MOTOR_B_PWM = 10;
+
+static const MotorPins PINS_MOTOR_A = {PIN_MOTOR_A1, PIN_MOTOR_A2, PIN_MOTOR_A_PWM};
+static const MotorPins PINS_MOTOR_B = {PIN_MOTOR_B1, PIN_MOTOR_B2, PIN_MOTOR_B_PWM};
 
 Adafruit_HMC5883_Unified compass = Adafruit_HMC5883_Unified();
 
@@ -39,6 +68,8 @@ void readConsole();
 
 void incrementRotaryLeft();
 void incrementRotaryRight();
+
+void controlMotor(const MotorPins&, const MotorMode, const unsigned int);
 
 void handleConsoleInput(const char[], unsigned int);
 
@@ -95,6 +126,16 @@ void initializePins() {
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_RIGHT), incrementRotaryRight, CHANGE);
 
     pinMode(LED_BUILTIN, OUTPUT);
+    
+    controlMotor(PINS_MOTOR_A, MotorMode::OFF, 0);
+    pinMode(PIN_MOTOR_A1, OUTPUT);
+    pinMode(PIN_MOTOR_A2, OUTPUT);
+    pinMode(PIN_MOTOR_A_PWM, OUTPUT);
+
+    controlMotor(PINS_MOTOR_B, MotorMode::OFF, 0);
+    pinMode(PIN_MOTOR_B1, OUTPUT);
+    pinMode(PIN_MOTOR_B2, OUTPUT);
+    pinMode(PIN_MOTOR_B_PWM, OUTPUT);
 }
 
 void initializeSerial() {
@@ -141,13 +182,14 @@ void printTelemetry() {
 
 // Read the serial console and execute command, if needed.
 void readConsole() {
-    static char input[MAX_CONSOLE_INPUT_LENGTH] = {'\0'};
+    static char input[MAX_CONSOLE_INPUT_LENGTH + 1] = {'\0'};
     static unsigned int currentLength = 0;
 
     while (Serial.available() != 0) {
         char nextChar = Serial.read();
         Serial.print(nextChar);
         if (nextChar == '\n') {
+            input[currentLength] = '\0';
             handleConsoleInput(input, currentLength);
             currentLength = 0;
         } else if ((nextChar >= ' ') && (currentLength < MAX_CONSOLE_INPUT_LENGTH)) {
@@ -165,8 +207,18 @@ void handleConsoleInput(const char input[], unsigned int length) {
         } else {
             Serial.println("└[∵]┘ Telemetry disabled. Entering CLI. Press <Enter> to quit.");
         }
-    } else if (strncasecmp(input, "help", length) == 0) {
-        Serial.println("help        Print the help.");
+    } else if (strncasecmp(input, "start b", length) == 0) {
+        controlMotor(PINS_MOTOR_B, MotorMode::FORWARD, 255);
+    } else if (strncasecmp(input, "reverse b", length) == 0) {
+        controlMotor(PINS_MOTOR_B, MotorMode::BACKWARD, 255);
+    } else if (strncasecmp(input, "off b", length) == 0) {
+        controlMotor(PINS_MOTOR_B, MotorMode::OFF, 0);
+    } else if (strncasecmp(input, "break b", length) == 0) {
+        controlMotor(PINS_MOTOR_B, MotorMode::SHORT_BREAK, 255);
+    } else {
+        Serial.print("┌[∵]┐ I don't understand: `");
+        Serial.print(input);
+        Serial.println("`");
     }
     if (!isTelemetryEnabled) {
         Serial.print("└[∵]┘ > ");
@@ -210,4 +262,26 @@ void incrementRotaryRight() {
     // TODO: wheel rotation direction.
     positionTicksX += 0.5f * compassX;
     positionTicksY += 0.5f * compassY;
+}
+
+void controlMotor(const MotorPins &pins, const MotorMode mode, const unsigned int speed) {
+    analogWrite(pins.pwm, speed);
+    switch (mode) {
+        case MotorMode::FORWARD:
+            digitalWrite(pins.pin2, LOW);
+            digitalWrite(pins.pin1, HIGH);
+            break;
+        case MotorMode::BACKWARD:
+            digitalWrite(pins.pin1, LOW);
+            digitalWrite(pins.pin2, HIGH);
+            break;
+        case MotorMode::OFF:
+            digitalWrite(pins.pin1, LOW);
+            digitalWrite(pins.pin2, LOW);
+            break;
+        case MotorMode::SHORT_BREAK:
+            digitalWrite(pins.pin1, HIGH);
+            digitalWrite(pins.pin2, HIGH);
+            break;
+    }
 }
