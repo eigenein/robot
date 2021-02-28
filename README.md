@@ -9,14 +9,13 @@
   - [x] Filtering
 - [ ] Ultrasonic distance sensor
 - [ ] Wireless PS2 controller
-- [x] Serial
+- [x] Serial / Bluetooth
   - [x] CLI
   - [x] Telemetry
 - [ ] Motors
   - [x] Basic control
   - [ ] PID controller
 - [ ] Piezo buzzer
-- [x] Bluetooth – connected to the serial
 
 ## Features
 
