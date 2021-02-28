@@ -1,22 +1,22 @@
 ## Peripherals
 
-- Wheel rotary encoders
+- [ ] Wheel rotary encoders
   - [x] Tracking distance
   - [ ] Tracking speed
-- Magnetic field sensor
+- [ ] Magnetic field sensor
   - [x] Reading
   - [x] Calibration
   - [x] Filtering
 - [ ] Ultrasonic distance sensor
 - [ ] Wireless PS2 controller
-- Serial
+- [x] Serial
   - [x] CLI
   - [x] Telemetry
-- Motors
+- [ ] Motors
   - [x] Basic control
   - [ ] PID controller
 - [ ] Piezo buzzer
-- Bluetooth – connected to the serial
+- [x] Bluetooth – connected to the serial
 
 ## Features
 
