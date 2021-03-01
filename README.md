@@ -1,6 +1,6 @@
 ## Features
 
-- [ ] Position tracking via the BNO055 orientatio sensor and the rotary encoders
+- [ ] Position tracking via the BNO055 orientation sensor and the rotary encoders
 - [ ] Position tracking via the BNO055 linear accelerometer
 - [ ] Tracking the ultrasonic distance sensor readings
 - [ ] Input via the wireless PS2 controller
