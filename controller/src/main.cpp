@@ -80,7 +80,7 @@ void handleConsoleInput(const char[], unsigned int);
 // Don't forget to call `start` and `update` on them.
 // -------------------------------------------------------------------------------------------------
 
-Ticker telemetryTicker(printTelemetry, PRINT_TELEMETRY_INTERVAL_MILLIS);
+Ticker printTelemetryTicker(printTelemetry, PRINT_TELEMETRY_INTERVAL_MILLIS);
 Ticker readCompassTicker(readCompass, READ_COMPASS_INTERVAL_MILLIS);
 Ticker readConsoleTicker(readConsole, READ_CONSOLE_INTERVAL_MILLIS);
 
@@ -112,7 +112,7 @@ void setup() {
 }
 
 void loop() {
-    telemetryTicker.update();
+    printTelemetryTicker.update();
     readCompassTicker.update();
     readConsoleTicker.update();
 }
@@ -154,7 +154,7 @@ void initializeCompass() {
 }
 
 void startTickers() {
-    telemetryTicker.start();
+    printTelemetryTicker.start();
     readCompassTicker.start();
     readConsoleTicker.start();
 }
