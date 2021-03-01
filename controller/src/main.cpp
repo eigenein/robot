@@ -90,7 +90,7 @@ Ticker readConsoleTicker(readConsole, READ_CONSOLE_INTERVAL_MILLIS);
 
 static bool isTelemetryEnabled = true;
 
-// TODO: replace with the BMO055 orientation data.
+// TODO: replace with the BNO055 orientation data.
 static float compassX = 0.0f;
 static float compassY = 0.0f;
 
