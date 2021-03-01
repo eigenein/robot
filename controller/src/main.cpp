@@ -51,6 +51,7 @@ static const unsigned int PIN_MOTOR_B_PWM = 10;
 static const MotorPins PINS_MOTOR_A = {PIN_MOTOR_A1, PIN_MOTOR_A2, PIN_MOTOR_A_PWM};
 static const MotorPins PINS_MOTOR_B = {PIN_MOTOR_B1, PIN_MOTOR_B2, PIN_MOTOR_B_PWM};
 
+// TODO: replace with `Adafruit_BNO055`.
 Adafruit_HMC5883_Unified compass = Adafruit_HMC5883_Unified();
 
 // -------------------------------------------------------------------------------------------------
@@ -88,6 +89,7 @@ Ticker readConsoleTicker(readConsole, READ_CONSOLE_INTERVAL_MILLIS);
 
 static bool isTelemetryEnabled = true;
 
+// TODO: replace with the BMO055 orientation data.
 static float compassX = 0.0f;
 static float compassY = 0.0f;
 

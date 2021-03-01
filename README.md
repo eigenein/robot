@@ -1,26 +1,13 @@
-## Peripherals
-
-- [ ] Wheel rotary encoders
-  - [x] Tracking distance
-  - [ ] Tracking speed
-- [ ] Magnetic field sensor
-  - [x] Reading
-  - [x] Calibration
-  - [x] Filtering
-- [ ] Ultrasonic distance sensor
-- [ ] Wireless PS2 controller
-- [x] Serial / Bluetooth
-  - [x] CLI
-  - [x] Telemetry
-- [ ] Motors
-  - [x] Basic control
-  - [ ] PID controller
-- [ ] Piezo buzzer
-
 ## Features
 
-- [ ] Position tracking
-- [ ] Mapping
+- [ ] Position tracking via the BNO055 orientatio sensor and the rotary encoders
+- [ ] Position tracking via the BNO055 linear accelerometer
+- [ ] Tracking obstacle distance via the ultrasonic distance sensor
+- [ ] Inpput via the wireless PS2 controller
+- [x] Serial & Bluetooth CLI
+- [x] Serial & Bluetooth telemetry output
+- [ ] Motors
+- [ ] Piezo buzzer
 
 ## Schematics
 
