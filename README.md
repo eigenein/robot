@@ -2,11 +2,11 @@
 
 - [ ] Position tracking via the BNO055 orientatio sensor and the rotary encoders
 - [ ] Position tracking via the BNO055 linear accelerometer
-- [ ] Tracking obstacle distance via the ultrasonic distance sensor
-- [ ] Inpput via the wireless PS2 controller
+- [ ] Tracking the ultrasonic distance sensor readings
+- [ ] Input via the wireless PS2 controller
 - [x] Serial & Bluetooth CLI
 - [x] Serial & Bluetooth telemetry output
-- [ ] Motors
+- [ ] PID-controlled motors
 - [ ] Piezo buzzer
 
 ## Schematics
