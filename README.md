@@ -1,13 +1,11 @@
 ## Features
 
-- [ ] Position tracking via the BNO055 orientation sensor and the rotary encoders
-- [ ] Position tracking via the BNO055 linear accelerometer
+- [ ] Position tracking via the BNO055 smart sensor and the rotary encoders
 - [ ] Tracking the ultrasonic distance sensor readings
 - [ ] Input via the wireless PS2 controller
-- [x] Serial & Bluetooth CLI
-- [x] Serial & Bluetooth telemetry output
+- [x] Serial/Bluetooth CLI & telemetry
 - [ ] PID-controlled motors
-- [ ] Piezo buzzer
+- [x] Piezo buzzer
 
 ## Schematics
 

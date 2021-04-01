@@ -13,7 +13,7 @@
 
 static const unsigned int PRINT_TELEMETRY_INTERVAL_MILLIS = 500;
 static const unsigned int READ_CONSOLE_INTERVAL_MILLIS = 100;
-static const unsigned int READ_POSITION_SENSOR_INTERVAL_MILLIS = 50;
+static const unsigned int READ_ORIENTATION_SENSOR_INTERVAL_MILLIS = 50;
 
 static const unsigned int MAX_CONSOLE_INPUT_LENGTH = 40;
 
@@ -34,7 +34,7 @@ static const unsigned int PIN_MOTOR_LEFT_PWM = 10;
 
 static const unsigned int PIN_BUZZER = 17;
 
-static Adafruit_BNO055 positionSensor = Adafruit_BNO055(-1, 0x29);
+static Adafruit_BNO055 orientationSensor = Adafruit_BNO055(-1, 0x29);
 
 // -------------------------------------------------------------------------------------------------
 // Forward declarations.
@@ -42,13 +42,12 @@ static Adafruit_BNO055 positionSensor = Adafruit_BNO055(-1, 0x29);
 
 void initializeSerial();
 void initializePins();
-void initializePositionSensor();
+void initializeOrientationSensor();
 void startTickers();
 
 void printTelemetry();
-void readCompass();
 void readConsole();
-void readPositionSensor();
+void readOrientationSensor();
 
 void onLeftRotaryChange();
 void onRightRotaryChange();
@@ -66,7 +65,7 @@ void handleConsoleInput(const char[], const unsigned int);
 
 Ticker printTelemetryTicker(printTelemetry, PRINT_TELEMETRY_INTERVAL_MILLIS);
 Ticker readConsoleTicker(readConsole, READ_CONSOLE_INTERVAL_MILLIS);
-Ticker readPositionSensorTicker(readPositionSensor, READ_POSITION_SENSOR_INTERVAL_MILLIS);
+Ticker readOrientationSensorTicker(readOrientationSensor, READ_ORIENTATION_SENSOR_INTERVAL_MILLIS);
 
 // -------------------------------------------------------------------------------------------------
 // Current state.
@@ -86,7 +85,7 @@ void setup() {
     Serial.println("└[∵]┘ Hi! Press <Enter> to enter the CLI.");
 
     initializePins();
-    initializePositionSensor();
+    initializeOrientationSensor();
     startTickers();
 
     Serial.println("└[∵]┐ Initialization delay…");
@@ -98,7 +97,7 @@ void setup() {
 void loop() {
     printTelemetryTicker.update();
     readConsoleTicker.update();
-    readPositionSensorTicker.update();
+    readOrientationSensorTicker.update();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -130,8 +129,8 @@ void initializeSerial() {
     while (!Serial);
 }
 
-void initializePositionSensor() {
-    if (!positionSensor.begin()) {
+void initializeOrientationSensor() {
+    if (!orientationSensor.begin()) {
         Serial.println("┌[∵]┐ Error: no BNO055 detected.");
         while (1);
     }
@@ -140,7 +139,7 @@ void initializePositionSensor() {
 void startTickers() {
     printTelemetryTicker.start();
     readConsoleTicker.start();
-    readPositionSensorTicker.start();
+    readOrientationSensorTicker.start();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -236,9 +235,9 @@ void controlRightMotor(const int speed) {
     controlMotor(PIN_MOTOR_RIGHT_1, PIN_MOTOR_RIGHT_2, PIN_MOTOR_RIGHT_PWM, speed);
 }
 
-void readPositionSensor() {
-    positionSensor.getEvent(&orientation, Adafruit_BNO055::VECTOR_EULER);
-    positionSensor.getEvent(&acceleration, Adafruit_BNO055::VECTOR_LINEARACCEL);
+void readOrientationSensor() {
+    orientationSensor.getEvent(&orientation, Adafruit_BNO055::VECTOR_EULER);
+    orientationSensor.getEvent(&acceleration, Adafruit_BNO055::VECTOR_LINEARACCEL);
 
     // Calculate the actual elapsed time.
     static unsigned long lastReadingMicros = micros();
