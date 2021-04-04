@@ -7,6 +7,8 @@
 #include <Adafruit_BNO055.h>
 #include <Ticker.h>
 
+#include "motor.h"
+
 // -------------------------------------------------------------------------------------------------
 // Custom types.
 // -------------------------------------------------------------------------------------------------
@@ -20,8 +22,6 @@ typedef float tick_speed_t;
 // -------------------------------------------------------------------------------------------------
 // Fundamental constants.
 // -------------------------------------------------------------------------------------------------
-
-static const float MILLIS_PER_SEC_F = 1000.0f;
 
 static const size_t MAX_CONSOLE_INPUT_LENGTH = 40;
 
@@ -44,6 +44,8 @@ static const pin_size_t PIN_MOTOR_LEFT_PWM = 10;
 
 static const pin_size_t PIN_BUZZER = 17;
 
+static Motor leftMotor(PIN_MOTOR_LEFT_1, PIN_MOTOR_LEFT_2, PIN_MOTOR_LEFT_PWM);
+static Motor rightMotor(PIN_MOTOR_RIGHT_1, PIN_MOTOR_RIGHT_2, PIN_MOTOR_RIGHT_PWM);
 static Adafruit_BNO055 orientationSensor = Adafruit_BNO055(-1, 0x29);
 
 // -------------------------------------------------------------------------------------------------
@@ -58,10 +60,7 @@ void startTickers();
 void printTelemetry();
 void readConsole();
 void readOrientationSensor();
-void controlMotors();
-
-void controlSingleMotor(const pin_size_t, const pin_size_t, const pin_size_t, const int, const bool);
-float calculatePID(const float, const float, const float, const float, const float, const float, float&, float&);
+void updateMotors();
 
 void handleConsoleInput(const char[], const size_t);
 
@@ -76,7 +75,7 @@ void onRightRotaryChange();
 Ticker printTelemetryTicker(printTelemetry, (millis_t)500);
 Ticker readConsoleTicker(readConsole, (millis_t)100);
 Ticker readOrientationSensorTicker(readOrientationSensor, (millis_t)50);
-Ticker controlMotorsTicker(controlMotors, CONTROL_MOTORS_INTERVAL_MILLIS);
+Ticker updateMotorsTicker(updateMotors, CONTROL_MOTORS_INTERVAL_MILLIS);
 
 // -------------------------------------------------------------------------------------------------
 // Current state.
@@ -85,14 +84,6 @@ Ticker controlMotorsTicker(controlMotors, CONTROL_MOTORS_INTERVAL_MILLIS);
 static bool isTelemetryEnabled = true;
 
 static sensors_event_t orientation, acceleration;
-static tick_speed_t targetLeftSpeed = 0, targetRightSpeed = 0;
-static tick_speed_t actualLeftSpeed = 0, actualRightSpeed = 0;
-static uint8_t leftTicks = 0, rightTicks = 0;
-static float leftPIDSignal = 0.0f, rightPIDSignal = 0.0f;
-
-static float motorKp = 0.01f;
-static float motorKi = 0.002f;
-static float motorKd = 0.5f;
 
 // -------------------------------------------------------------------------------------------------
 // Arduino setup and loop.
@@ -107,18 +98,18 @@ void setup() {
     initializeOrientationSensor();
     startTickers();
 
-    tone(PIN_BUZZER, 440, 50); // Initialization tone.
+    // tone(PIN_BUZZER, 440, 50); // Initialization tone.
     Serial.println("└[∵]┐ Initialization delay…");
     delay(100); // TODO: check what kind of delay is actually needed by BNO055.
     Serial.println("└[∵]┘ Initialized.");
-    tone(PIN_BUZZER, 880, 50); // Initialization tone.
+    // tone(PIN_BUZZER, 880, 50); // Initialization tone.
 }
 
 void loop() {
     printTelemetryTicker.update();
     readConsoleTicker.update();
     readOrientationSensorTicker.update();
-    controlMotorsTicker.update();
+    updateMotorsTicker.update();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -126,27 +117,17 @@ void loop() {
 // -------------------------------------------------------------------------------------------------
 
 void initializePins() {
+    pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(PIN_BUZZER, OUTPUT);
+
+    leftMotor.initializePins();
+    rightMotor.initializePins();
+
     pinMode(PIN_ROTARY_LEFT, INPUT);
     pinMode(PIN_ROTARY_RIGHT, INPUT);
 
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_LEFT), onLeftRotaryChange, CHANGE);
     attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_RIGHT), onRightRotaryChange, CHANGE);
-
-    pinMode(LED_BUILTIN, OUTPUT);
-
-    digitalWrite(PIN_MOTOR_LEFT_1, LOW);
-    pinMode(PIN_MOTOR_LEFT_1, OUTPUT);
-    digitalWrite(PIN_MOTOR_LEFT_2, LOW);
-    pinMode(PIN_MOTOR_LEFT_2, OUTPUT);
-    digitalWrite(PIN_MOTOR_LEFT_PWM, LOW);
-    pinMode(PIN_MOTOR_LEFT_PWM, OUTPUT);
-
-    digitalWrite(PIN_MOTOR_RIGHT_1, LOW);
-    pinMode(PIN_MOTOR_RIGHT_1, OUTPUT);
-    digitalWrite(PIN_MOTOR_RIGHT_2, LOW);
-    pinMode(PIN_MOTOR_RIGHT_2, OUTPUT);
-    digitalWrite(PIN_MOTOR_RIGHT_PWM, LOW);
-    pinMode(PIN_MOTOR_RIGHT_PWM, OUTPUT);
 }
 
 void initializeSerial() {
@@ -165,7 +146,7 @@ void startTickers() {
     printTelemetryTicker.start();
     readConsoleTicker.start();
     readOrientationSensorTicker.start();
-    controlMotorsTicker.start();
+    updateMotorsTicker.start();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -178,21 +159,21 @@ void printTelemetry() {
     }
 
     Serial.print(orientation.orientation.x);
-    
-    Serial.print("° | actual: ");
-    Serial.print(actualLeftSpeed);
+
+    Serial.print("° | speed: ");
+    Serial.print(leftMotor.getCurrentTickSpeed());
     Serial.print(" ");
-    Serial.print(actualRightSpeed);
-    
+    Serial.print(rightMotor.getCurrentTickSpeed());
+
     Serial.print(" | target: ");
-    Serial.print(targetLeftSpeed);
+    Serial.print(leftMotor.targetTickSpeed);
     Serial.print(" ");
-    Serial.print(targetRightSpeed);
-    
+    Serial.print(rightMotor.targetTickSpeed);
+
     Serial.print(" | PID: ");
-    Serial.print(leftPIDSignal);
+    Serial.print(leftMotor.getCurrentPIDSignal());
     Serial.print(" ");
-    Serial.print(rightPIDSignal);
+    Serial.print(rightMotor.getCurrentPIDSignal());
 
     Serial.println();
 }
@@ -226,17 +207,19 @@ void handleConsoleInput(const char input[], const size_t length) {
             Serial.println("└[∵]┘ Telemetry disabled. Entering CLI. Press <Enter> to quit.");
         }
     } else if (sscanf(input, "l%ld", &argument) == 1) {
-        targetLeftSpeed = argument;
+        leftMotor.targetTickSpeed = argument;
     } else if (sscanf(input, "r%ld", &argument) == 1) {
-        targetRightSpeed = argument;
+        rightMotor.targetTickSpeed = argument;
     } else if (sscanf(input, "s%ld", &argument) == 1) {
-        targetLeftSpeed = targetRightSpeed = argument;
+        leftMotor.targetTickSpeed = rightMotor.targetTickSpeed = argument;
     } else if (sscanf(input, "kp%ld", &argument) == 1) {
-        motorKp = argument / 1000.0;
+        leftMotor.kp = rightMotor.kp = argument / 1000.0;
     } else if (sscanf(input, "ki%ld", &argument) == 1) {
-        motorKi = argument / 1000.0;
+        leftMotor.setKi(argument / 1000.0);
+        rightMotor.setKi(argument / 1000.0);
     } else if (sscanf(input, "kd%ld", &argument) == 1) {
-        motorKd = argument / 1000.0;
+        leftMotor.setKd(argument / 1000.0);
+        rightMotor.setKd(argument / 1000.0);
     } else if (!isTelemetryEnabled) {
         Serial.print("┌[∵]┐ I don't understand: `");
         Serial.print(input);
@@ -244,41 +227,21 @@ void handleConsoleInput(const char input[], const size_t length) {
     }
     if (!isTelemetryEnabled) {
         Serial.print("kp: ");
-        Serial.print(motorKp, 3);
+        Serial.print(leftMotor.kp, 3);
         Serial.print(" ki: ");
-        Serial.print(motorKi, 3);
+        Serial.print(leftMotor.getKi(), 3);
         Serial.print(" kd: ");
-        Serial.println(motorKd, 3);
+        Serial.println(leftMotor.getKd(), 3);
         Serial.print("└[∵]┘ > ");
     }
 }
 
 void onLeftRotaryChange() {
-    leftTicks++;
+    leftMotor.onRotaryTickInterrupt(digitalRead(PIN_ROTARY_LEFT));
 }
 
 void onRightRotaryChange() {
-    rightTicks++;
-}
-
-void controlSingleMotor(
-    const pin_size_t pin1,
-    const pin_size_t pin2,
-    const pin_size_t pinPWM,
-    const int pidSignal,
-    const bool reverse
-) {
-    analogWrite(pinPWM, constrain(pidSignal, 0, 255));
-    if (pidSignal == 0) {
-        digitalWrite(pin1, HIGH);
-        digitalWrite(pin2, HIGH);
-    } else if (!reverse) {
-        digitalWrite(pin1, LOW);
-        digitalWrite(pin2, HIGH);
-    } else {
-        digitalWrite(pin2, LOW);
-        digitalWrite(pin1, HIGH);
-    }
+    rightMotor.onRotaryTickInterrupt(digitalRead(PIN_ROTARY_RIGHT));
 }
 
 void readOrientationSensor() {
@@ -286,54 +249,12 @@ void readOrientationSensor() {
     orientationSensor.getEvent(&acceleration, Adafruit_BNO055::VECTOR_LINEARACCEL);
 }
 
-void controlMotors() {
-    static float leftIntegral = 0.0f, rightIntegral = 0.0f;
-    static float previousLeftError = 0.0f, previousRightError = 0.0f;
-    
-    actualLeftSpeed = MILLIS_PER_SEC_F * leftTicks / CONTROL_MOTORS_INTERVAL_MILLIS;
-    actualRightSpeed = MILLIS_PER_SEC_F * rightTicks / CONTROL_MOTORS_INTERVAL_MILLIS;
-    leftTicks = rightTicks = 0;
+void updateMotors() {
+    static unsigned long lastMicros = 0;
+    unsigned long elapsedMicros = micros() - lastMicros;
 
-    leftPIDSignal = calculatePID(
-        fabs(targetLeftSpeed),
-        actualLeftSpeed,
-        motorKp,
-        motorKi,
-        motorKd,
-        CONTROL_MOTORS_INTERVAL_MILLIS,
-        leftIntegral,
-        previousLeftError
-    );
-    controlSingleMotor(PIN_MOTOR_LEFT_1, PIN_MOTOR_LEFT_2, PIN_MOTOR_LEFT_PWM, leftPIDSignal, targetLeftSpeed < 0);
+    leftMotor.update(elapsedMicros);
+    rightMotor.update(elapsedMicros);
 
-    rightPIDSignal = calculatePID(
-        fabs(targetRightSpeed),
-        actualRightSpeed,
-        motorKp,
-        motorKi,
-        motorKd,
-        CONTROL_MOTORS_INTERVAL_MILLIS,
-        rightIntegral,
-        previousRightError
-    );
-    controlSingleMotor(PIN_MOTOR_RIGHT_1, PIN_MOTOR_RIGHT_2, PIN_MOTOR_RIGHT_PWM, rightPIDSignal, targetRightSpeed < 0);
-}
-
-// https://en.wikipedia.org/wiki/PID_controller#Pseudocode
-float calculatePID(
-    const float setPoint,
-    const float actual,
-    const float kp,
-    const float ki,
-    const float kd,
-    const float elapsed,
-    float& integral,
-    float& previousError
-) {
-    const float error = setPoint - actual;
-    const float proportional = error;
-    integral += error * elapsed;
-    const float derivative = (error - previousError) / elapsed;
-    previousError = error;
-    return kp * proportional + ki * integral + kd * derivative;
+    lastMicros = micros();
 }
