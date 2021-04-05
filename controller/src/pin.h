@@ -5,6 +5,8 @@
 
 class Pin {
 public:
+    const pin_size_t number;
+
     Pin(pin_size_t number) : number{number} {};
     Pin(pin_size_t number, PinMode mode) : Pin(number) {
         pinMode(number, mode);
@@ -13,15 +15,17 @@ public:
         digitalWrite(number, initialStatus);
     }
 
-    void setStatus(PinStatus status) {
+    void attachInterrupt(PinStatus mode, void (*userFunc)(void)) const {
+        ::attachInterrupt(digitalPinToInterrupt(number), userFunc, mode);
+    }
+
+    void setStatus(PinStatus status) const {
         digitalWrite(number, status);
     }
 
-    void setAnalogValue(int value) {
+    void setAnalogValue(int value) const {
         analogWrite(number, value);
     }
-private:
-    pin_size_t number;
 };
 
 #endif

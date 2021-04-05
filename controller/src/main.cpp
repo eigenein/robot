@@ -29,22 +29,13 @@ static const size_t MAX_CONSOLE_INPUT_LENGTH = 40;
 // Peripherals and pins.
 // -------------------------------------------------------------------------------------------------
 
-static const pin_size_t PIN_ROTARY_LEFT = 21;
-static const pin_size_t PIN_ROTARY_RIGHT = 20;
-
-static const pin_size_t PIN_MOTOR_RIGHT_1 = 4;
-static const pin_size_t PIN_MOTOR_RIGHT_2 = 2;
-static const pin_size_t PIN_MOTOR_RIGHT_PWM = 9;
-
-static const pin_size_t PIN_MOTOR_LEFT_1 = 8;
-static const pin_size_t PIN_MOTOR_LEFT_2 = 7;
-static const pin_size_t PIN_MOTOR_LEFT_PWM = 10;
-
 static const pin_size_t PIN_BUZZER = 17;
 
-static Motor leftMotor(PIN_MOTOR_LEFT_1, PIN_MOTOR_LEFT_2, PIN_MOTOR_LEFT_PWM);
-static Motor rightMotor(PIN_MOTOR_RIGHT_1, PIN_MOTOR_RIGHT_2, PIN_MOTOR_RIGHT_PWM);
-static Adafruit_BNO055 orientationSensor = Adafruit_BNO055(-1, 0x29);
+static const Motor leftMotor(8, 7, 10);
+static const Motor rightMotor(4, 2, 9);
+static const Adafruit_BNO055 orientationSensor = Adafruit_BNO055(-1, 0x29);
+static const Pin rotaryLeftPin = Pin(21, INPUT);
+static const Pin rotaryRightPin = Pin(20, INPUT);
 
 // -------------------------------------------------------------------------------------------------
 // Forward declarations.
@@ -115,11 +106,8 @@ void initializePins() {
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(PIN_BUZZER, OUTPUT);
 
-    pinMode(PIN_ROTARY_LEFT, INPUT);
-    pinMode(PIN_ROTARY_RIGHT, INPUT);
-
-    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_LEFT), onLeftRotaryChange, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(PIN_ROTARY_RIGHT), onRightRotaryChange, CHANGE);
+    rotaryLeftPin.attachInterrupt(CHANGE, onLeftRotaryChange);
+    rotaryRightPin.attachInterrupt(CHANGE, onRightRotaryChange);
 }
 
 void initializeSerial() {
