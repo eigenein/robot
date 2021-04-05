@@ -3,44 +3,33 @@
 
 #include <Arduino.h>
 
-static const float MIN_FEASIBLE_TICK_SPEED = 4.0f;
-static const unsigned long MAX_TICK_INTERVAL_MICROS = 1000000;
+#include "pin.h"
 
 class Motor {
 public:
-    // Proportional gain.
-    float kp = 1.0f;
-
-    float targetTickSpeed = 0;
-
-    Motor(const pin_size_t pin1, const pin_size_t pin2, const pin_size_t pinPWM)
-        : pin1{pin1}, pin2{pin2}, pinPWM{pinPWM}
-    {
-        digitalWrite(pin1, LOW);
-        pinMode(pin1, OUTPUT);
-        digitalWrite(pin2, LOW);
-        pinMode(pin2, OUTPUT);
-        digitalWrite(pinPWM, LOW);
-        pinMode(pinPWM, OUTPUT);
+    Motor(const pin_size_t pin1, const pin_size_t pin2, const pin_size_t pinPWM) :
+        pin1{Pin::Pin(pin1, OUTPUT, LOW)},
+        pin2{Pin::Pin(pin2, OUTPUT, LOW)},
+        pinPWM{Pin::Pin(pinPWM, OUTPUT, LOW)} {
     }
 
     void setSpeed(const int speed) {
         if (speed == 0) {
-            digitalWrite(pin1, LOW);
-            digitalWrite(pin2, LOW);
+            pin1.setStatus(LOW);
+            pin2.setStatus(LOW);
         } else if (speed > 0) {
-            digitalWrite(pin1, LOW);
-            digitalWrite(pin2, HIGH);
-            analogWrite(pinPWM, speed);
+            pin1.setStatus(LOW);
+            pin2.setStatus(HIGH);
+            pinPWM.setAnalogValue(speed);
         } else {
-            digitalWrite(pin2, LOW);
-            digitalWrite(pin1, HIGH);
-            analogWrite(pinPWM, -speed);
+            pin2.setStatus(LOW);
+            pin1.setStatus(HIGH);
+            pinPWM.setAnalogValue(-speed);
         }
     }
 private:
-    const pin_size_t pin1;
-    const pin_size_t pin2;
-    const pin_size_t pinPWM;
+    const Pin pin1;
+    const Pin pin2;
+    const Pin pinPWM;
 };
 #endif
