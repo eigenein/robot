@@ -25,8 +25,6 @@ typedef float tick_speed_t;
 
 static const size_t MAX_CONSOLE_INPUT_LENGTH = 40;
 
-static const millis_t CONTROL_MOTORS_INTERVAL_MILLIS = 200;
-
 // -------------------------------------------------------------------------------------------------
 // Peripherals and pins.
 // -------------------------------------------------------------------------------------------------
@@ -60,7 +58,6 @@ void startTickers();
 void printTelemetry();
 void readConsole();
 void readOrientationSensor();
-void updateMotors();
 
 void handleConsoleInput(const char[], const size_t);
 
@@ -75,7 +72,6 @@ void onRightRotaryChange();
 Ticker printTelemetryTicker(printTelemetry, (millis_t)500);
 Ticker readConsoleTicker(readConsole, (millis_t)100);
 Ticker readOrientationSensorTicker(readOrientationSensor, (millis_t)50);
-Ticker updateMotorsTicker(updateMotors, CONTROL_MOTORS_INTERVAL_MILLIS);
 
 // -------------------------------------------------------------------------------------------------
 // Current state.
@@ -109,7 +105,6 @@ void loop() {
     printTelemetryTicker.update();
     readConsoleTicker.update();
     readOrientationSensorTicker.update();
-    updateMotorsTicker.update();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -119,9 +114,6 @@ void loop() {
 void initializePins() {
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(PIN_BUZZER, OUTPUT);
-
-    leftMotor.initializePins();
-    rightMotor.initializePins();
 
     pinMode(PIN_ROTARY_LEFT, INPUT);
     pinMode(PIN_ROTARY_RIGHT, INPUT);
@@ -146,7 +138,6 @@ void startTickers() {
     printTelemetryTicker.start();
     readConsoleTicker.start();
     readOrientationSensorTicker.start();
-    updateMotorsTicker.start();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -160,20 +151,7 @@ void printTelemetry() {
 
     Serial.print(orientation.orientation.x);
 
-    Serial.print("° | speed: ");
-    Serial.print(leftMotor.getCurrentTickSpeed());
-    Serial.print(" ");
-    Serial.print(rightMotor.getCurrentTickSpeed());
-
-    Serial.print(" | target: ");
-    Serial.print(leftMotor.targetTickSpeed);
-    Serial.print(" ");
-    Serial.print(rightMotor.targetTickSpeed);
-
-    Serial.print(" | PID: ");
-    Serial.print(leftMotor.getCurrentPIDSignal());
-    Serial.print(" ");
-    Serial.print(rightMotor.getCurrentPIDSignal());
+    Serial.print("° | TODO");
 
     Serial.println();
 }
@@ -198,7 +176,7 @@ void readConsole() {
 
 // Handle user console input and execute the command.
 void handleConsoleInput(const char input[], const size_t length) {
-    int32_t argument;
+    int intArgument;
     if (length == 0) {
         isTelemetryEnabled = !isTelemetryEnabled;
         if (isTelemetryEnabled) {
@@ -206,55 +184,32 @@ void handleConsoleInput(const char input[], const size_t length) {
         } else {
             Serial.println("└[∵]┘ Telemetry disabled. Entering CLI. Press <Enter> to quit.");
         }
-    } else if (sscanf(input, "l%ld", &argument) == 1) {
-        leftMotor.targetTickSpeed = argument;
-    } else if (sscanf(input, "r%ld", &argument) == 1) {
-        rightMotor.targetTickSpeed = argument;
-    } else if (sscanf(input, "s%ld", &argument) == 1) {
-        leftMotor.targetTickSpeed = rightMotor.targetTickSpeed = argument;
-    } else if (sscanf(input, "kp%ld", &argument) == 1) {
-        leftMotor.kp = rightMotor.kp = argument / 1000.0;
-    } else if (sscanf(input, "ki%ld", &argument) == 1) {
-        leftMotor.setKi(argument / 1000.0);
-        rightMotor.setKi(argument / 1000.0);
-    } else if (sscanf(input, "kd%ld", &argument) == 1) {
-        leftMotor.setKd(argument / 1000.0);
-        rightMotor.setKd(argument / 1000.0);
+    } else if (sscanf(input, "l%ld", &intArgument) == 1) {
+        leftMotor.setSpeed(intArgument);
+    } else if (sscanf(input, "r%ld", &intArgument) == 1) {
+        rightMotor.setSpeed(intArgument);
+    } else if (sscanf(input, "s%ld", &intArgument) == 1) {
+        leftMotor.setSpeed(intArgument);
+        rightMotor.setSpeed(intArgument);
     } else if (!isTelemetryEnabled) {
         Serial.print("┌[∵]┐ I don't understand: `");
         Serial.print(input);
         Serial.println("`");
     }
     if (!isTelemetryEnabled) {
-        Serial.print("kp: ");
-        Serial.print(leftMotor.kp, 3);
-        Serial.print(" ki: ");
-        Serial.print(leftMotor.getKi(), 3);
-        Serial.print(" kd: ");
-        Serial.println(leftMotor.getKd(), 3);
         Serial.print("└[∵]┘ > ");
     }
 }
 
 void onLeftRotaryChange() {
-    leftMotor.onRotaryTickInterrupt(digitalRead(PIN_ROTARY_LEFT));
+    // TODO
 }
 
 void onRightRotaryChange() {
-    rightMotor.onRotaryTickInterrupt(digitalRead(PIN_ROTARY_RIGHT));
+    // TODO
 }
 
 void readOrientationSensor() {
     orientationSensor.getEvent(&orientation, Adafruit_BNO055::VECTOR_EULER);
     orientationSensor.getEvent(&acceleration, Adafruit_BNO055::VECTOR_LINEARACCEL);
-}
-
-void updateMotors() {
-    static unsigned long lastMicros = 0;
-    unsigned long elapsedMicros = micros() - lastMicros;
-
-    leftMotor.update(elapsedMicros);
-    rightMotor.update(elapsedMicros);
-
-    lastMicros = micros();
 }
