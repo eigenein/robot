@@ -8,6 +8,7 @@
 #include <Ticker.h>
 
 #include "motor.h"
+#include "rotary.h"
 
 // -------------------------------------------------------------------------------------------------
 // Custom types.
@@ -85,11 +86,10 @@ void setup() {
     initializeOrientationSensor();
     startTickers();
 
-    // tone(PIN_BUZZER, 440, 50); // Initialization tone.
     Serial.println("└[∵]┐ Initialization delay…");
     delay(100); // TODO: check what kind of delay is actually needed by BNO055.
     Serial.println("└[∵]┘ Initialized.");
-    // tone(PIN_BUZZER, 880, 50); // Initialization tone.
+    tone(PIN_BUZZER, 880, 25); // Initialization tone.
 }
 
 void loop() {

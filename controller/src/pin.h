@@ -1,3 +1,7 @@
+/*
+ * Object-oriented pin manipulation.
+ */
+
 #ifndef PIN_H
 #define PIN_H
 
@@ -13,6 +17,10 @@ public:
     };
     Pin(pin_size_t number, PinMode mode, PinStatus initialStatus) : Pin(number, mode) {
         digitalWrite(number, initialStatus);
+    }
+
+    PinStatus getStatus() const {
+        return digitalRead(number);
     }
 
     void attachInterrupt(PinStatus mode, void (*userFunc)(void)) const {

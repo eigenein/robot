@@ -1,3 +1,7 @@
+/*
+ * Object-oriented motor control.
+ */
+
 #ifndef MOTOR_H
 #define MOTOR_H
 
@@ -8,9 +12,9 @@
 class Motor {
 public:
     Motor(const pin_size_t pin1, const pin_size_t pin2, const pin_size_t pinPWM) :
-        pin1{Pin::Pin(pin1, OUTPUT, LOW)},
-        pin2{Pin::Pin(pin2, OUTPUT, LOW)},
-        pinPWM{Pin::Pin(pinPWM, OUTPUT, LOW)} {
+        pin1{Pin(pin1, OUTPUT, LOW)},
+        pin2{Pin(pin2, OUTPUT, LOW)},
+        pinPWM{Pin(pinPWM, OUTPUT, LOW)} {
     }
 
     void setSpeed(const int speed) {
