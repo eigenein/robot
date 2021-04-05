@@ -7,6 +7,7 @@
 #include <Adafruit_BNO055.h>
 #include <Ticker.h>
 
+#include "buzzer.h"
 #include "motor.h"
 #include "rotary.h"
 
@@ -30,7 +31,7 @@ static const size_t MAX_CONSOLE_INPUT_LENGTH = 40;
 // Peripherals and pins.
 // -------------------------------------------------------------------------------------------------
 
-static const pin_size_t PIN_BUZZER = 17;
+static const Buzzer buzzer = Buzzer(17);
 
 static const Motor leftMotor(8, 7, 10);
 static const Motor rightMotor(4, 2, 9);
@@ -94,7 +95,7 @@ void setup() {
     Serial.println("└[∵]┐ Initialization delay…");
     delay(100); // TODO: check what kind of delay is actually needed by BNO055.
     Serial.println("└[∵]┘ Initialized.");
-    tone(PIN_BUZZER, 880, 25); // Initialization tone.
+    buzzer.beepInitialized();
 }
 
 void loop() {
@@ -109,7 +110,6 @@ void loop() {
 
 void initializePins() {
     pinMode(LED_BUILTIN, OUTPUT);
-    pinMode(PIN_BUZZER, OUTPUT);
 
     // It works better with either `RISING` or `FALLING`, but not `CHANGE`.
     leftRotaryPin.attachInterrupt(RISING, onLeftRotaryInterrupt);
