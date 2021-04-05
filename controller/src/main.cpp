@@ -26,6 +26,7 @@ typedef float tick_speed_t;
 // -------------------------------------------------------------------------------------------------
 
 static const size_t MAX_CONSOLE_INPUT_LENGTH = 40;
+static const float TAU = 3.14159265358979323846f;
 
 // -------------------------------------------------------------------------------------------------
 // Peripherals and pins.
@@ -78,6 +79,9 @@ Ticker readOrientationSensorTicker(readOrientationSensor, (millis_t)50);
 static bool isTelemetryEnabled = true;
 
 static sensors_event_t orientation, acceleration;
+static float orientationRadians = 0.0f;
+static float orientationX = 1.0f, orientationY = 0.0f;
+static float positionX = 0.0f, positionY = 0.0f;
 
 // -------------------------------------------------------------------------------------------------
 // Arduino setup and loop.
@@ -140,11 +144,18 @@ void startTickers() {
 
 void printTelemetry() {
     Serial.print(orientation.orientation.x);
-    Serial.print("° | ");
+    Serial.print("° ↔ ");
+    Serial.print(orientationX, 3);
+    Serial.print(" ↕ ");
+    Serial.print(orientationY, 3);
+    Serial.print(" | ");
     Serial.print(leftRotaryEncoder.getSpeed(), 3);
     Serial.print(" ");
     Serial.print(rightRotaryEncoder.getSpeed(), 3);
-    Serial.print(" rot/sec | TODO");
+    Serial.print(" rot/sec | X: ");
+    Serial.print(positionX, 3);
+    Serial.print(" Y: ");
+    Serial.print(positionY, 3);
     Serial.println();
 }
 
@@ -197,13 +208,24 @@ void handleConsoleInput(const char input[], const size_t length) {
 
 void onLeftRotaryInterrupt() {
     leftRotaryEncoder.onInterrupt();
+
+    // TODO: account for moving backwards.
+    positionX += orientationX;
+    positionY += orientationY;
 }
 
 void onRightRotaryInterrupt() {
     rightRotaryEncoder.onInterrupt();
+
+    // TODO: account for moving backwards.
+    positionX += orientationX;
+    positionY += orientationY;
 }
 
 void readOrientationSensor() {
     orientationSensor.getEvent(&orientation, Adafruit_BNO055::VECTOR_EULER);
     orientationSensor.getEvent(&acceleration, Adafruit_BNO055::VECTOR_LINEARACCEL);
+    orientationRadians = orientation.orientation.x / TAU;
+    orientationX = cos(orientationRadians);
+    orientationY = sin(orientationRadians);
 }
