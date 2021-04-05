@@ -34,9 +34,14 @@ static const pin_size_t PIN_BUZZER = 17;
 
 static const Motor leftMotor(8, 7, 10);
 static const Motor rightMotor(4, 2, 9);
+
 static const Adafruit_BNO055 orientationSensor = Adafruit_BNO055(-1, 0x29);
-static const Pin rotaryLeftPin = Pin(21, INPUT);
-static const Pin rotaryRightPin = Pin(20, INPUT);
+
+static const Pin leftRotaryPin = Pin(21, INPUT);
+static const Pin rightRotaryPin = Pin(20, INPUT);
+
+static const Rotary leftRotaryEncoder;
+static const Rotary rightRotaryEncoder;
 
 // -------------------------------------------------------------------------------------------------
 // Forward declarations.
@@ -53,8 +58,8 @@ void readOrientationSensor();
 
 void handleConsoleInput(const char[], const size_t);
 
-void onLeftRotaryChange();
-void onRightRotaryChange();
+void onLeftRotaryInterrupt();
+void onRightRotaryInterrupt();
 
 // -------------------------------------------------------------------------------------------------
 // Tickers.
@@ -106,8 +111,9 @@ void initializePins() {
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(PIN_BUZZER, OUTPUT);
 
-    rotaryLeftPin.attachInterrupt(CHANGE, onLeftRotaryChange);
-    rotaryRightPin.attachInterrupt(CHANGE, onRightRotaryChange);
+    // It works better with either `RISING` or `FALLING`, but not `CHANGE`.
+    leftRotaryPin.attachInterrupt(RISING, onLeftRotaryInterrupt);
+    rightRotaryPin.attachInterrupt(RISING, onRightRotaryInterrupt);
 }
 
 void initializeSerial() {
@@ -133,14 +139,12 @@ void startTickers() {
 // -------------------------------------------------------------------------------------------------
 
 void printTelemetry() {
-    if (!isTelemetryEnabled) {
-        return;
-    }
-
     Serial.print(orientation.orientation.x);
-
-    Serial.print("° | TODO");
-
+    Serial.print("° | ");
+    Serial.print(leftRotaryEncoder.getSpeed(), 3);
+    Serial.print(" ");
+    Serial.print(rightRotaryEncoder.getSpeed(), 3);
+    Serial.print(" rot/sec | TODO");
     Serial.println();
 }
 
@@ -168,8 +172,10 @@ void handleConsoleInput(const char input[], const size_t length) {
     if (length == 0) {
         isTelemetryEnabled = !isTelemetryEnabled;
         if (isTelemetryEnabled) {
+            printTelemetryTicker.start();
             Serial.println("└[∵]┘ Quitting CLI. Telemetry enabled. Press <Enter> to go back to CLI.");
         } else {
+            printTelemetryTicker.stop();
             Serial.println("└[∵]┘ Telemetry disabled. Entering CLI. Press <Enter> to quit.");
         }
     } else if (sscanf(input, "l%ld", &intArgument) == 1) {
@@ -189,12 +195,12 @@ void handleConsoleInput(const char input[], const size_t length) {
     }
 }
 
-void onLeftRotaryChange() {
-    // TODO
+void onLeftRotaryInterrupt() {
+    leftRotaryEncoder.onInterrupt();
 }
 
-void onRightRotaryChange() {
-    // TODO
+void onRightRotaryInterrupt() {
+    rightRotaryEncoder.onInterrupt();
 }
 
 void readOrientationSensor() {
