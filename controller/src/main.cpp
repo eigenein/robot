@@ -26,7 +26,7 @@ typedef float tick_speed_t;
 // -------------------------------------------------------------------------------------------------
 
 static const size_t MAX_CONSOLE_INPUT_LENGTH = 40;
-static const float TAU = 3.14159265358979323846f;
+static const float TAU = 6.283185307179586f;
 
 // -------------------------------------------------------------------------------------------------
 // Peripherals and pins.
