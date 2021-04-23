@@ -1,6 +1,6 @@
 ## Features
 
-- [ ] Position tracking via the BNO055 smart sensor and the rotary encoders
+- [ ] Position tracking via the BNO055 smart sensor
 - [ ] Tracking the ultrasonic distance sensor readings
 - [ ] Input via the wireless PS2 controller
 - [x] Serial/Bluetooth CLI & telemetry
