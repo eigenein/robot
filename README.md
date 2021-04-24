@@ -1,11 +1,4 @@
-## Features
-
-- [ ] Position tracking via the BNO055 smart sensor
-- [ ] Tracking the ultrasonic distance sensor readings
-- [ ] Input via the wireless PS2 controller
-- [x] Serial/Bluetooth CLI & telemetry
-- [x] PWM-controlled motors
-- [x] Piezo buzzer
+**I'm switching from Arduino Nano Every to Raspberry Pi Pico. The schematics and PCB are almost ready, but the code isn't updated yet.**
 
 ## Schematics
 
