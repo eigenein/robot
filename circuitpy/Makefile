@@ -1,5 +1,6 @@
 TARGET_PATH := "/Volumes/CIRCUITPY"
-DEVICE := "/dev/cu.usbmodem143201"
+LOCAL_DEVICE := "/dev/cu.usbmodem143201"
+REMOTE_DEVICE := "/dev/cu.JDY-31-SPP-Port"
 
 deploy: $(TARGET_PATH)/lib $(TARGET_PATH)/src $(TARGET_PATH)/code.py
 
@@ -19,9 +20,13 @@ $(TARGET_PATH)/code.py:
 	@echo "from src.__main__ import main; main()" > "$(TARGET_PATH)/code.py"
 
 .PHONY: monitor
-monitor:
-	@cat "$(DEVICE)"
+local-monitor:
+	@cat "$(LOCAL_DEVICE)"
+
+.PHONY: remote-monitor
+remote-monitor:
+	@cat "$(REMOTE_DEVICE)"
 
 .PHONY: repl
-repl:
-	@screen "$(DEVICE)" 115200
+local-repl:
+	@screen "$(LOCAL_DEVICE)" 115200
