@@ -39,46 +39,39 @@ class Hcsr04:
     """
 
     def __init__(self, *, trigger_pin: Pin, echo_pin: Pin, timeout=0.1):
-        self.trigger = DigitalInOut(trigger_pin)
-        self.trigger.direction = Direction.OUTPUT
-        self.trigger.value = False
-        self.echo = DigitalInOut(echo_pin)
-        self.echo.direction = Direction.INPUT
-        self.timeout = timeout
+        self._trigger_io = DigitalInOut(trigger_pin)
+        self._trigger_io.direction = Direction.OUTPUT
+        self._trigger_io.value = False
+        self._echo_io = DigitalInOut(echo_pin)
+        self._echo_io.direction = Direction.INPUT
+        self._timeout = timeout
 
     def measure_once(self) -> float:
         """
         Measures the distance and returns it in metres.
-        This property has ~17cm resolution.
         """
-        self._wait_for(False)
 
         # Issue the trigger pulse.
-        self.trigger.value = True
+        self._trigger_io.value = True
         sleep(0.000010)
-        self.trigger.value = False
+        self._trigger_io.value = False
 
         self._wait_for(True)
         return self._wait_for(False) * 170.0
 
-    def measure_n_times(self, n_measurements: int = 3) -> float:
-        """
-        Fires `n_measurements` requests and averages them.
-        """
-        return sum(self.measure_once() for _ in range(n_measurements)) / n_measurements
-
-    def measure_for(self, seconds: float = 0.5, min_measurements: int = 10) -> float:
-        sum_, n_measurements = 0.0, 0
-        end_time = monotonic() + seconds
-        while n_measurements < min_measurements or monotonic() < end_time:
+    def measure(self, min_measurements: int = 25, min_duration: float = 0.1) -> (float, int):
+        n_measurements = 0
+        sum_ = 0.0
+        end_time = monotonic() + min_duration
+        while monotonic() < end_time or n_measurements < min_measurements:
             sum_ += self.measure_once()
             n_measurements += 1
-        return sum_ / n_measurements
+        return sum_ / n_measurements, n_measurements
 
     def _wait_for(self, value: bool) -> float:
         start_time = monotonic()
-        timeout_time = start_time + self.timeout
-        while self.echo.value != value:
+        timeout_time = start_time + self._timeout
+        while self._echo_io.value != value:
             if monotonic() > timeout_time:
                 raise TimeoutError(f"Timed out while waiting for the {value} value.")
         return monotonic() - start_time
@@ -108,10 +101,11 @@ class Main:
 
     def loop(self):
         try:
-            self.logger.info(f"Hello from {self.sonar.measure_for():.2f}m.")
+            distance, n_measurements = self.sonar.measure()
         except TimeoutError as e:
             self.logger.error(str(e))
-        # sleep(0.5)
+        else:
+            self.logger.info(f"{distance:.2f}m | {n_measurements}")
 
 
 if __name__ == "__main__":
