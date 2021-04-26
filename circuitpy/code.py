@@ -2,7 +2,7 @@ import adafruit_logging
 import board
 from busio import UART
 from digitalio import DigitalInOut, Direction
-from microcontroller import Pin
+from microcontroller import Pin, cpu
 from time import monotonic, sleep
 from sys import print_exception
 
@@ -12,23 +12,20 @@ class CustomHandler(adafruit_logging.LoggingHandler):
     Prints out message both to the serial monitor and the specified UART.
     """
 
+    LEVELS = {
+        adafruit_logging.DEBUG: ("D", ""),
+        adafruit_logging.INFO: ("I", "\033[92m"),
+        adafruit_logging.WARNING: ("W", "\033[93m"),
+        adafruit_logging.ERROR: ("E", "\033[91m"),
+        adafruit_logging.CRITICAL: ("C", "\033[91m\033[1m"),
+    }
+
     def __init__(self, uart: UART):
         self.uart = uart
 
     def emit(self, level: int, msg: str):
-        if level == adafruit_logging.DEBUG:
-            code = "📝"
-        elif level == adafruit_logging.INFO:
-            code = "ℹ"
-        elif level == adafruit_logging.WARNING:
-            code = "⚠"
-        elif level == adafruit_logging.ERROR:
-            code = "‼"
-        elif level == adafruit_logging.CRITICAL:
-            code = "⛔"
-        else:
-            code = "❔"
-        line = f"{monotonic():.3f} [{code}] {msg}\r\n"
+        name, color = self.LEVELS[level]
+        line = f"{color}{monotonic():.3f} [{name}] {msg}\033[0m\r\n"
         print(line, end="")
         self.uart.write(line.encode("utf-8"))
 
@@ -105,7 +102,7 @@ class Main:
         except TimeoutError as e:
             self.logger.error(str(e))
         else:
-            self.logger.info(f"{distance:.2f}m | {n_measurements}")
+            self.logger.info(f"{distance:.2f}m | {n_measurements} | {cpu.temperature}")
 
 
 if __name__ == "__main__":
