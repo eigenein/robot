@@ -1,26 +1,42 @@
-from adafruit_logging import DEBUG, INFO, WARNING, ERROR, CRITICAL, LoggingHandler
-from busio import UART
+from sys import print_exception
+
 from time import monotonic
 
+_GREEN = "\033[92m"
+_YELLOW = "\033[93m"
+_RED = "\033[91m"
+_BOLD = "\033[1m"
+_END_COLOR = "\033[0m"
+_END = f"{_END_COLOR}\r\n"
 
-class Handler(LoggingHandler):
-    """
-    Prints out message both to the serial monitor and the specified UART.
-    """
+_handlers = []
 
-    LEVELS = {
-        DEBUG: ("D", ""),
-        INFO: ("I", "\033[92m"),
-        WARNING: ("W", "\033[93m"),
-        ERROR: ("E", "\033[91m"),
-        CRITICAL: ("C", "\033[91m\033[1m"),
-    }
 
-    def __init__(self, uart: UART):
-        self.uart = uart
+def add_handler(file_):
+    _handlers.append(file_)
 
-    def emit(self, level: int, msg: str):
-        name, color = self.LEVELS[level]
-        line = f"{color}{monotonic():.3f} [{name}] {msg}\033[0m\r\n"
-        print(line, end="")
-        self.uart.write(line.encode("utf-8"))  # type: ignore
+
+def debug(message: str):
+    _emit(f"{monotonic():.3f} [D] {message}\r\n")
+
+
+def info(message: str):
+    _emit(f"{_GREEN}{monotonic():.3f} [I] {message}{_END}")
+
+
+def warning(message: str):
+    _emit(f"{_YELLOW}{monotonic():.3f} [W] {message}{_END}")
+
+
+def error(message: str, e: Exception = None):
+    _emit(f"{_RED}{_BOLD}{monotonic():.3f} [E] {message}{_END}")
+    if e is not None:
+        print(f"{_RED}", end="")
+        print_exception(e)
+        print(_END_COLOR, end="")
+
+
+def _emit(formatted_message: str):
+    print(formatted_message, end="")
+    for handler in _handlers:
+        handler.write(formatted_message.encode("utf-8"))

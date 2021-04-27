@@ -1,12 +1,10 @@
 """My tiny event loop."""
 
-import adafruit_logging
 from time import monotonic
-from sys import print_exception
+
+from custom_logging import error
 
 _RESULT_NOT_READY = object()
-
-logger = adafruit_logging.getLogger("code")
 
 
 class EventLoop:
@@ -26,8 +24,7 @@ class EventLoop:
             except StopIteration:
                 pass
             except Exception as e:
-                logger.error("Unhandled exception in coroutine %s: %s.", coroutine, e)
-                print_exception(e)
+                error(f"Unhandled exception in coroutine {coroutine}: {e}.", e=e)
             else:
                 self._queue.append((coroutine, new_task))
 

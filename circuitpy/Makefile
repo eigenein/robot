@@ -1,5 +1,5 @@
 TARGET_PATH := /Volumes/CIRCUITPY
-LOCAL_DEVICE := /dev/cu.usbmodem143201
+LOCAL_DEVICE := $(wildcard /dev/cu.usbmodem*)
 REMOTE_DEVICE := /dev/cu.JDY-31-SPP-Port
 
 all: \

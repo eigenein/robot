@@ -1,11 +1,10 @@
-import adafruit_logging
 import board
 from busio import UART
 from digitalio import DigitalInOut, Direction
 from microcontroller import Pin, cpu
 from time import monotonic, sleep
-from sys import print_exception
-from custom_logging import Handler as LoggingHandler
+
+from custom_logging import add_handler as add_logging_handler, error, info
 from event_loop import EventLoop, async_sleep
 
 
@@ -55,16 +54,15 @@ class Main:
             try:
                 self.loop()
             except Exception as e:
-                logger.error(str(e))
-                print_exception(e)
+                error(str(e), e=e)
 
     def loop(self):
         try:
             distance, n_measurements = sonar.measure()
         except TimeoutError as e:
-            logger.error(str(e))
+            error(str(e))
         else:
-            logger.info(f"{distance:.2f}m | {n_measurements} | {cpu.temperature}")
+            info(f"{distance:.2f}m | {n_measurements} | {cpu.temperature}")
 
 
 led = DigitalInOut(board.LED)
@@ -74,23 +72,22 @@ uart0 = UART(board.GP0, board.GP1, baudrate=9600)
 
 sonar = Hcsr04(trigger_pin=board.GP12, echo_pin=board.GP13)
 
-logger = adafruit_logging.getLogger("code")
-logger.addHandler(LoggingHandler(uart0))
-logger.setLevel(adafruit_logging.DEBUG)
-logger.info("Initialized.")
+add_logging_handler(uart0)
+info("Initialized.")
 
 if __name__ == "__main__":
     # Main().run()
     sleep(1.0)
     async def worker1():
         for _ in range(5):
-            logger.info("%s", await answer())
+            info(f"{await answer()}")
             await async_sleep(0.5)
+            raise Exception("hello")
     async def worker2():
         for _ in range(5):
-            logger.info("2")
+            info("2")
             await async_sleep(1.0)
     async def answer():
         return 42
     EventLoop(worker1(), worker2()).run_until_complete()
-    logger.info("Done.")
+    info("Done.")
