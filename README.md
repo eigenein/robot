@@ -1,4 +1,9 @@
-**I'm switching from Arduino Nano Every to Raspberry Pi Pico. The schematics and PCB are almost ready, but the code isn't updated yet.**
+## Features
+
+- My own tiny asynchronous event loop (since [CircuitPython doesn't have one](https://learn.adafruit.com/welcome-to-circuitpython/frequently-asked-questions))
+- Multiple asynchronous tasks running «at the same time» 
+- Asynchronous HC-SR04 driver instead of the blocking driver from Adafruit
+- Schematics & PCB design included
 
 ## Parts
 
