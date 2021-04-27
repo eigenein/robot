@@ -1,0 +1,32 @@
+from microcontroller import Pin
+
+LED: Pin
+GP0: Pin
+GP1: Pin
+GP2: Pin
+GP3: Pin
+GP4: Pin
+GP5: Pin
+GP6: Pin
+GP7: Pin
+GP8: Pin
+GP9: Pin
+GP10: Pin
+GP11: Pin
+GP12: Pin
+GP13: Pin
+GP14: Pin
+GP15: Pin
+GP16: Pin
+GP17: Pin
+GP18: Pin
+GP19: Pin
+GP20: Pin
+GP21: Pin
+GP22: Pin
+GP23: Pin
+GP24: Pin
+GP25: Pin
+GP26: Pin
+GP27: Pin
+GP29: Pin
