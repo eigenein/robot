@@ -6,7 +6,6 @@ all: \
 	$(TARGET_PATH)/lib \
 	$(TARGET_PATH)/custom_logging.py \
 	$(TARGET_PATH)/event_loop.py \
-	$(TARGET_PATH)/hcsr04.py \
 	$(TARGET_PATH)/peripherals.py \
 	$(TARGET_PATH)/code.py
 
