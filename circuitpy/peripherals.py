@@ -1,9 +1,9 @@
 import board
 from busio import I2C, UART
 from digitalio import DigitalInOut, Direction
-from bno055 import Bno055
 
 from async_busio import AsyncBus
+from bno055 import Bno055
 
 led = DigitalInOut(board.LED)
 led.direction = Direction.OUTPUT

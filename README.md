@@ -1,6 +1,7 @@
 ## Features
 
 - My own tiny asynchronous event loop (since [CircuitPython doesn't have one](https://learn.adafruit.com/welcome-to-circuitpython/frequently-asked-questions))
+- Custom «asynchronous» BNO055 driver
 - Multiple asynchronous tasks running «at the same time»
 - Schematics & PCB design included
 

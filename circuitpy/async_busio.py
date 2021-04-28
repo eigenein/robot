@@ -1,4 +1,4 @@
-from event_loop import async_sleep
+from micro_asyncio import sleep
 
 
 class AsyncBus:
@@ -12,7 +12,7 @@ class AsyncBus:
     async def __aenter__(self):
         """Lock the bus asynchronously."""
         while not self._bus.try_lock():
-            await async_sleep(0.0)
+            await sleep(0.001)
         return self._bus
 
     async def __aexit__(self, _exc_type, _exc_val, _exc_tb):

@@ -2,7 +2,7 @@
 
 from time import monotonic
 
-from custom_logging import error, warning
+from micro_logging import error, warning
 
 _RESULT_NOT_READY = object()
 
@@ -22,7 +22,6 @@ class EventLoop:
     def run_until_complete(self):
         """Runs the event loop, until there's no tasks in the queue anymore."""
         while self._queue:
-            # TODO: heap + light sleep.
             now = monotonic()
             (coroutine, resume_time) = self._queue.pop(0)
             if resume_time is not None and resume_time > now:
@@ -58,6 +57,6 @@ class Awaitable:
 event_loop = EventLoop()
 
 
-def async_sleep(duration: float):
+def sleep(duration: float):
     """Sleep for the specified amount of time."""
     return Awaitable(monotonic() + duration)
