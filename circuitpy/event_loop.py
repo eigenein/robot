@@ -22,6 +22,7 @@ class EventLoop:
     def run_until_complete(self):
         """Runs the event loop, until there's no tasks in the queue anymore."""
         while self._queue:
+            # TODO: heap + light sleep.
             now = monotonic()
             (coroutine, resume_time) = self._queue.pop(0)
             if resume_time is not None and resume_time > now:

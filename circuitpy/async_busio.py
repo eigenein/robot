@@ -1,23 +1,23 @@
 from event_loop import async_sleep
 
 
-class AsyncIo:
+class AsyncBus:
     """Asynchronous `busio` wrapper."""
 
-    __slots__ = ("_io",)
+    __slots__ = ("_bus",)
 
-    def __init__(self, io):
-        self._io = io
+    def __init__(self, bus):
+        self._bus = bus
 
     async def __aenter__(self):
         """Lock the bus asynchronously."""
-        while not self._io.try_lock():
+        while not self._bus.try_lock():
             await async_sleep(0.0)
-        return self._io
+        return self._bus
 
     async def __aexit__(self, _exc_type, _exc_val, _exc_tb):
         """Unlock the bus."""
-        self._io.unlock()
+        self._bus.unlock()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({repr(self._io)})"
+        return f"{self.__class__.__name__}({repr(self._bus)})"
