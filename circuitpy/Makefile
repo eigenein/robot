@@ -7,6 +7,8 @@ all: \
 	$(TARGET_PATH)/custom_logging.py \
 	$(TARGET_PATH)/event_loop.py \
 	$(TARGET_PATH)/peripherals.py \
+	$(TARGET_PATH)/async_busio.py \
+	$(TARGET_PATH)/bno055.py \
 	$(TARGET_PATH)/code.py
 
 .PHONY: $(TARGET_PATH)/lib
