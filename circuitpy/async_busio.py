@@ -2,13 +2,13 @@ from micro_asyncio import sleep
 from collections import namedtuple
 
 
-class AsyncBus(namedtuple("_AsyncBusBase", ("bus",))):
+class AsyncBus(namedtuple("AsyncBus", ("bus",))):
     """Asynchronous `busio` wrapper."""
 
     async def __aenter__(self):
         """Lock the bus asynchronously."""
         while not self.bus.try_lock():
-            await sleep(0.001)
+            await sleep(0.001, "try_lock")
         return self.bus
 
     async def __aexit__(self, _exc_type, _exc_val, _exc_tb):

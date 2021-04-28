@@ -41,16 +41,17 @@ class EventLoop:
                 self._queue.append((coroutine, new_task))
 
 
-class Awaitable(namedtuple("_AwaitableBase", ("resume_time",))):
+class Awaitable(namedtuple("Awaitable", ("resume_time", "tag"))):
     def __await__(self):
         actual_time = yield self.resume_time  # type: float
-        if actual_time - self.resume_time > 0.001:
-            warning(f"{self} resumed too late: {actual_time}")
+        delay = actual_time - self.resume_time
+        if delay > 0.001:
+            warning(f"{self} resumed {delay}s late")
 
 
 event_loop = EventLoop()
 
 
-def sleep(duration: float):
+def sleep(duration: float, tag=None):
     """Sleep for the specified amount of time."""
-    return Awaitable(monotonic() + duration)
+    return Awaitable(monotonic() + duration, tag=tag)

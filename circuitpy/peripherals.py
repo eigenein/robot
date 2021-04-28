@@ -9,6 +9,6 @@ led = DigitalInOut(board.LED)
 led.direction = Direction.OUTPUT
 
 uart0 = UART(board.GP0, board.GP1, baudrate=9600)
-i2c1 = AsyncBus(I2C(board.GP15, board.GP14))
+i2c1 = AsyncBus(I2C(board.GP15, board.GP14, frequency=400000))
 
-bno055 = Bno055(i2c1)
+orientation_sensor = Bno055(i2c1)

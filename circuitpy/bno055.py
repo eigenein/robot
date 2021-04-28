@@ -44,10 +44,11 @@ class Bno055:
         await self._wait_online()
         await self._write_byte(REGISTER_PAGE_ID, 0)
         await self._set_mode(OPERATION_MODE_CONFIG)
+        await sleep(0.020)  # switch to config mode
         await self._write_byte(REGISTER_POWER_MODE, POWER_MODE_NORMAL)
         await self._write_byte(REGISTER_UNIT_SELECTION, 0b00000110)  # m/s², radians, Celsius
         await self._set_mode(self._mode)
-        await self._wait_online()
+        await sleep(0.008)  # switch to operation mode
 
     async def get_euler(self) -> ndarray:
         async with self._bus as bus:  # type: I2C
