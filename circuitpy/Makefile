@@ -14,7 +14,7 @@ all: \
 .PHONY: clean
 clean:
 	rm -rf "$(TARGET_PATH)/lib"
-	rm "$(TARGET_PATH)/code.py"
+	rm $(TARGET_PATH)/*.py
 
 .PHONY: $(TARGET_PATH)/lib
 $(TARGET_PATH)/lib: lib

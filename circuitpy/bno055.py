@@ -1,6 +1,7 @@
 from ulab.numpy import ndarray
 from busio import I2C
 from time import monotonic
+from struct import unpack_from
 
 from async_busio import AsyncBus
 from micro_asyncio import sleep
@@ -49,10 +50,11 @@ class Bno055:
         await self._wait_online()
 
     async def get_euler(self) -> ndarray:
-        async with self._bus as bus:
+        async with self._bus as bus:  # type: I2C
             self._buffer[0] = REGISTER_EULER_HEADING_LSB
-            bus.writeto_then_readfrom(self._address, self._buffer, self._buffer, in_end=1, out_end=6)
-            return ndarray(self._buffer)  # FIXME: 900 rps/s
+            bus.writeto(self._address, self._buffer, end=1)
+            bus.readfrom_into(self._address, self._buffer, end=6)
+            return ndarray(unpack_from("<hhh", self._buffer)) / 900.0
 
     async def _wait_online(self):
         """Wait until we're able to read the chip ID."""
@@ -72,7 +74,8 @@ class Bno055:
     async def _read_byte(self, from_register: int) -> int:
         async with self._bus as bus:  # type: I2C
             self._buffer[0] = from_register
-            bus.writeto_then_readfrom(self._address, self._buffer, self._buffer, in_end=1, out_end=1)
+            bus.writeto(self._address, self._buffer, end=1)
+            bus.readfrom_into(self._address, self._buffer, end=1)
             return self._buffer[0]
 
     async def _write_byte(self, to_register: int, byte: int) -> None:

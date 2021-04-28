@@ -1,4 +1,4 @@
-## Features
+Yes, it's yet another hobby robot, like many of those based on Arduino. So, to make it more fun it features:
 
 - My own tiny asynchronous event loop (since [CircuitPython doesn't have one](https://learn.adafruit.com/welcome-to-circuitpython/frequently-asked-questions))
 - Custom «asynchronous» BNO055 driver
