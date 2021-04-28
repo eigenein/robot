@@ -1,7 +1,7 @@
-from ulab.numpy import ndarray
 from busio import I2C
-from time import monotonic
 from struct import unpack_from
+from time import monotonic
+from ulab.numpy import ndarray
 
 from async_busio import AsyncBus
 from micro_asyncio import sleep
