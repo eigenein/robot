@@ -42,6 +42,8 @@ class EventLoop:
 
 
 class Awaitable(namedtuple("Awaitable", ("resume_time", "tag"))):
+    # TODO: support `None` in `resume_time`.
+
     def __await__(self):
         actual_time = yield self.resume_time  # type: float
         delay = actual_time - self.resume_time
@@ -54,4 +56,5 @@ event_loop = EventLoop()
 
 def sleep(duration: float, tag=None):
     """Sleep for the specified amount of time."""
+    # TODO: support `None` in `duration`.
     return Awaitable(monotonic() + duration, tag=tag)
