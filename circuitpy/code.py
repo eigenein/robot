@@ -1,4 +1,4 @@
-from custom_logging import add_handler as add_logging_handler, info, warning
+from custom_logging import add_handler as add_logging_handler, info
 from event_loop import async_sleep, event_loop
 from peripherals import *
 
@@ -9,7 +9,7 @@ class Main:
 
     async def _run_telemetry(self):
         while True:
-            (info if not event_loop.n_errors else warning)(" | ".join((
+            info(" | ".join((
                 "OK",
             )))
             await async_sleep(0.5)
