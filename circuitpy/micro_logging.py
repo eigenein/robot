@@ -31,7 +31,6 @@ def warning(message: str):
 def error(message: str, e: Exception = None):
     _emit(f"{_RED}{_BOLD}{monotonic():.3f} [E] {message}{_END}")
     if e is not None:
-        # TODO: await sleep(None)
         print(f"{_RED}", end="")
         print_exception(e)
         print(_END_COLOR, end="")
@@ -40,5 +39,4 @@ def error(message: str, e: Exception = None):
 def _emit(formatted_message: str):
     print(formatted_message, end="")
     for handler in _handlers:
-        # TODO: await sleep(None)
         handler.write(formatted_message.encode("utf-8"))
