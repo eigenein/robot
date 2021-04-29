@@ -2,11 +2,13 @@
 
 from collections import namedtuple
 
-from time import monotonic
+from time import monotonic, sleep as blocking_sleep
 
 from micro_logging import error, warning
 
 _RESULT_NOT_READY = object()
+
+QueueItem = namedtuple("QueueItem", ("coroutine", "resume_time"))
 
 
 class EventLoop:
@@ -18,43 +20,39 @@ class EventLoop:
 
     def schedule(self, *coroutines) -> "EventLoop":
         """Schedule execution of the coroutines."""
-        self._queue.extend((coroutine, None) for coroutine in coroutines)
+        now = monotonic()
+        self._queue.extend(QueueItem(coroutine, now) for coroutine in coroutines)
         return self
 
     def run_until_complete(self):
         """Runs the event loop, until there's no tasks in the queue anymore."""
         while self._queue:
-            now = monotonic()
-            (coroutine, resume_time) = self._queue.pop(0)
-            if resume_time is not None and resume_time > now:
-                self._queue.append((coroutine, resume_time))
-                continue
+            # TODO: should use a heap.
+            index = min(range(len(self._queue)), key=lambda i: self._queue[i].resume_time)  # type: int
+            item = self._queue.pop(index)  # type: QueueItem
             try:
-                new_task = coroutine.send(now if resume_time is not None else None)
+                blocking_sleep(item.resume_time - monotonic())
+            except ValueError:
+                warning(f"{item.coroutine} is {monotonic() - item.resume_time}s late.")
+            try:
+                next_resume_time = item.coroutine.send(None)
             except StopIteration:
-                # The coroutine has finished.
-                pass
+                pass  # the coroutine has finished
             except Exception as e:
-                error(f"Unhandled exception in coroutine {coroutine}: {e}.")
+                error(f"Unhandled exception in coroutine {item.coroutine}: {e}.")
                 raise
             else:
-                self._queue.append((coroutine, new_task))
+                self._queue.append(QueueItem(item.coroutine, next_resume_time))
 
 
-class Awaitable(namedtuple("Awaitable", ("resume_time", "tag"))):
-    # TODO: support `None` in `resume_time`.
-
+class Awaitable(namedtuple("Awaitable", ("resume_time",))):
     def __await__(self):
-        actual_time = yield self.resume_time  # type: float
-        delay = actual_time - self.resume_time
-        if delay > 0.001:
-            warning(f"{self} resumed {delay}s late")
+        yield self.resume_time
 
 
 event_loop = EventLoop()
 
 
-def sleep(duration: float, tag=None):
+def sleep(duration: float):
     """Sleep for the specified amount of time."""
-    # TODO: support `None` in `duration`.
-    return Awaitable(monotonic() + duration, tag=tag)
+    return Awaitable(monotonic() + duration)

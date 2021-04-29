@@ -19,11 +19,11 @@ class Main:
                 f"Euler: {self._euler}",
             )))  # FIXME: this line takes too long.
             led.value = not led.value
-            await sleep(0.5, "_run_telemetry")
+            await sleep(0.5)
 
     async def _run_orientation_sensor(self):
         while True:
-            await sleep(0.01, "_run_orientation_sensor")  # fusion output rate is 100Hz
+            await sleep(0.01)  # fusion output rate is 100Hz
             self._euler = await orientation_sensor.get_euler()
 
 
