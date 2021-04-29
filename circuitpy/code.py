@@ -2,7 +2,7 @@ from ulab.numpy import ndarray
 
 from micro_asyncio import event_loop, sleep
 from micro_logging import add_handler as add_logging_handler, info
-from peripherals import *
+from peripherals import led, orientation_sensor, uart0
 
 
 class Main:
