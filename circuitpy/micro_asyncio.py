@@ -33,7 +33,7 @@ class EventLoop:
             sleep_duration = item.resume_time - monotonic()
             if sleep_duration > 0.0:
                 blocking_sleep(sleep_duration)
-            elif sleep_duration < -0.02:
+            elif sleep_duration < -0.01:
                 warning(f"{item.coroutine} is {-sleep_duration}s late.")
             try:
                 next_resume_time = item.coroutine.send(None)

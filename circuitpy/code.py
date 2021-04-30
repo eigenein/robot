@@ -1,8 +1,8 @@
 from ulab.numpy import ndarray
 
 from micro_asyncio import event_loop, sleep
-from micro_logging import add_handler as add_logging_handler, error, info
-from peripherals import led, orientation_sensor, uart0
+from micro_logging import error, info
+from peripherals import led, orientation_sensor
 
 
 class Main:
@@ -17,7 +17,7 @@ class Main:
         while True:
             info(" | ".join((
                 f"Orient: {self._euler[0]}",
-            )))  # FIXME: this line takes too long.
+            )))
             led.value = not led.value
             await sleep(0.5)
 
@@ -29,8 +29,6 @@ class Main:
             except OSError as e:
                 error(f"BNO055: {e}")
 
-
-add_logging_handler(uart0)
 
 if __name__ == "__main__":
     info("Starting…")
