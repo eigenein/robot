@@ -31,9 +31,9 @@ local-monitor:
 	@cat "$(LOCAL_DEVICE)"
 
 .PHONY: remote-monitor
-remote-monitor:
-	@cat "$(REMOTE_DEVICE)"
+remote-repl:
+	@screen "$(REMOTE_DEVICE)" 9600
 
 .PHONY: repl
-repl:
+local-repl:
 	@screen "$(LOCAL_DEVICE)" 115200
