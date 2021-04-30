@@ -38,5 +38,6 @@ def error(message: str, e: Exception = None):
 
 def _emit(formatted_message: str):
     print(formatted_message, end="")
+    encoded_message = formatted_message.encode("utf-8")
     for handler in _handlers:
-        handler.write(formatted_message.encode("utf-8"))
+        handler.write(encoded_message)

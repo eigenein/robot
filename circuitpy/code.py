@@ -1,7 +1,7 @@
 from ulab.numpy import ndarray
 
 from micro_asyncio import event_loop, sleep
-from micro_logging import add_handler as add_logging_handler, info
+from micro_logging import add_handler as add_logging_handler, error, info
 from peripherals import led, orientation_sensor, uart0
 
 
@@ -16,7 +16,7 @@ class Main:
     async def _run_telemetry(self):
         while True:
             info(" | ".join((
-                f"Euler: {self._euler}",
+                f"Orient: {self._euler[0]}",
             )))  # FIXME: this line takes too long.
             led.value = not led.value
             await sleep(0.5)
@@ -24,7 +24,10 @@ class Main:
     async def _run_orientation_sensor(self):
         while True:
             await sleep(0.01)  # fusion output rate is 100Hz
-            self._euler = await orientation_sensor.get_euler()
+            try:
+                self._euler = await orientation_sensor.get_euler()
+            except OSError as e:
+                error(f"BNO055: {e}")
 
 
 add_logging_handler(uart0)

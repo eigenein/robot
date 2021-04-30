@@ -12,7 +12,7 @@ QueueItem = namedtuple("QueueItem", ("coroutine", "resume_time"))
 
 
 class EventLoop:
-    __slots__ = ("_queue",)
+    __slots__ = ("_queue", "_load")
 
     def __init__(self, *coroutines):
         self._queue = []
@@ -30,10 +30,11 @@ class EventLoop:
             # TODO: should use a heap.
             index = min(range(len(self._queue)), key=lambda i: self._queue[i].resume_time)  # type: int
             item = self._queue.pop(index)  # type: QueueItem
-            try:
-                blocking_sleep(item.resume_time - monotonic())
-            except ValueError:
-                warning(f"{item.coroutine} is {monotonic() - item.resume_time}s late.")
+            sleep_duration = item.resume_time - monotonic()
+            if sleep_duration > 0.0:
+                blocking_sleep(sleep_duration)
+            elif sleep_duration < -0.02:
+                warning(f"{item.coroutine} is {-sleep_duration}s late.")
             try:
                 next_resume_time = item.coroutine.send(None)
             except StopIteration:
