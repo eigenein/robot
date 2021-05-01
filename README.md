@@ -18,3 +18,8 @@ Yes, it's yet another hobby robot, like many of those based on Arduino. So, to m
 ## Schematics
 
 ![Schematics image](fritzing/robot_schem.png)
+
+## External resources
+
+- [CircuitPython builds](https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/raspberry_pi_pico/en_GB/)
+- [Pi Pico pinout](https://datasheets.raspberrypi.org/pico/Pico-R3-A4-Pinout.pdf)
