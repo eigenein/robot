@@ -2,7 +2,8 @@ from ulab.numpy import ndarray
 
 from micro_asyncio import event_loop, sleep
 from micro_logging import error, info
-from peripherals import led, orientation_sensor, uart0
+from peripherals import led, orientation_sensor
+from repl import run as run_repl
 
 
 class Main:
@@ -14,7 +15,7 @@ class Main:
         event_loop.schedule(
             self._run_telemetry(),
             self._run_orientation_sensor(),
-            self._run_remote_terminal(),
+            run_repl(),
         )
 
     async def _run_telemetry(self):
@@ -35,27 +36,6 @@ class Main:
             except OSError as e:
                 error(f"orientation sensor error: {e}")
 
-    async def _run_remote_terminal(self):
-        """Accept and execute remote commands."""
-        while True:
-            uart0.write(b"> ")
-            input_ = b""
-            while input_[-1:] != b"\n":
-                while not uart0.in_waiting:
-                    await sleep(0.001)
-                input_ += uart0.read(uart0.in_waiting)
-                await sleep(0.001)
-            input_ = input_.decode("utf-8").strip()
-            if not input_:
-                continue
-            try:
-                result = eval(input_)
-            except Exception as e:
-                error(f"Error in the remote terminal: {e}", e=e)
-                error(f"Input: {input_}")
-            else:
-                await sleep(0.0)
-                uart0.write(str(result).encode("utf-8"))
 
 if __name__ == "__main__":
     info("Starting…")

@@ -9,6 +9,7 @@ all: \
 	$(TARGET_PATH)/peripherals.py \
 	$(TARGET_PATH)/async_busio.py \
 	$(TARGET_PATH)/bno055.py \
+	$(TARGET_PATH)/repl.py \
 	$(TARGET_PATH)/code.py
 
 .PHONY: clean
@@ -32,7 +33,7 @@ local-monitor:
 
 .PHONY: remote-monitor
 remote-repl:
-	@screen "$(REMOTE_DEVICE)" 9600
+	@screen "$(REMOTE_DEVICE)" 9600,echo
 
 .PHONY: repl
 local-repl:
