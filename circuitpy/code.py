@@ -8,7 +8,7 @@ from repl import run as run_repl
 
 class Main:
     def __init__(self):
-        self._euler = ndarray((0.0, 0.0, 0.0))
+        self._euler = ndarray((0.0, 0.0, 0.0))  # FIXME: make it `None`.
 
     async def run(self):
         await orientation_sensor.begin()

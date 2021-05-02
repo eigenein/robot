@@ -7,6 +7,7 @@ from time import monotonic, sleep as blocking_sleep
 from micro_logging import error, warning
 
 _RESULT_NOT_READY = object()
+_MINIMAL_SLEEP = 0.001
 
 QueueItem = namedtuple("QueueItem", ("coroutine", "resume_time"))
 
@@ -54,6 +55,6 @@ class Awaitable(namedtuple("Awaitable", ("resume_time",))):
 event_loop = EventLoop()
 
 
-def sleep(duration: float):
+def sleep(duration: float = _MINIMAL_SLEEP):
     """Sleep for the specified amount of time."""
     return Awaitable(monotonic() + duration)

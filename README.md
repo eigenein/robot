@@ -1,8 +1,10 @@
-Yes, it's yet another hobby robot, like many of those based on Arduino. So, to make it more fun it features:
+Yes, it's yet another hobby robot, like many of those based on Arduino. So, to make it more fun, it features:
 
+- Raspberry Pi Pico instead of an Arduino board
 - My own tiny asynchronous event loop (since [CircuitPython doesn't have one](https://learn.adafruit.com/welcome-to-circuitpython/frequently-asked-questions))
 - Custom «asynchronous» BNO055 driver
 - Multiple asynchronous tasks running «at the same time»
+- Simple REPL over Bluetooth
 - Schematics & PCB design included
 
 ## Parts

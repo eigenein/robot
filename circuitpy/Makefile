@@ -33,7 +33,7 @@ local-monitor:
 
 .PHONY: remote-monitor
 remote-repl:
-	@screen "$(REMOTE_DEVICE)" 9600,echo
+	@screen "$(REMOTE_DEVICE)" 9600
 
 .PHONY: repl
 local-repl:

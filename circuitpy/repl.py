@@ -1,23 +1,42 @@
+import peripherals
 from micro_asyncio import sleep
-from micro_logging import error
 from peripherals import uart0
+
+globals_ = {
+    "peripherals": peripherals,
+}
 
 
 async def run():
     while True:
+        await sleep()
         uart0.write(b"> ")
-        input_ = b""
-        while input_[-1:] not in (b"\r", b"\r\n", b"\n"):
+        input_ = []
+
+        while True:
+            await sleep()
             while not uart0.in_waiting:
-                await sleep(0.01)
-            input_ += uart0.read(uart0.in_waiting)
-        input_ = input_.decode("utf-8").strip()
-        if not input_:
+                await sleep()
+            char = uart0.read(1)
+            if char == b"\n":
+                pass
+            elif char == b"\r":
+                if input_:
+                    uart0.write(b"\r\n")
+                    break
+            else:
+                if char == b"\x7F":
+                    uart0.write(b"\b")
+                    input_ = input_[:-1]
+                else:
+                    uart0.write(char)  # echo
+                    input_.append(char)
+
+        source = b"".join(input_).decode("utf-8").strip()
+        if not source or source.startswith("CONNECTED") or source.startswith("+CONNECTING") or "+DISC:" in source:
             continue
         try:
-            result = eval(input_)
+            result = eval(source, globals_)
         except Exception as e:
-            error(f"Error in the remote terminal: `{e}` for input `{input_}`", e=e)
-        else:
-            await sleep(0.0)
-            uart0.write(str(result).encode("utf-8"))
+            result = f"ERROR: {e} for source {repr(source)}"
+        uart0.write(f"{result}\r\n".encode("utf-8"))
